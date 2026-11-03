@@ -32,12 +32,15 @@ jobs:
         run: python scripts/build_feed.py
         env:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}        # optional repo variable, default gpt-5-mini
+          TAG_DAYS: ${{ vars.TAG_DAYS }}                # optional repo variable, default 90 (0 = all history)
           FORCE_PRICES: ${{ inputs.force_prices }}
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add feed
+          git add -A feed
           if git diff --cached --quiet; then echo "No changes"; else
             git commit -m "Update feed $(date -u +%Y-%m-%dT%H:%MZ)"
             git push
