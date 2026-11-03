@@ -1,9 +1,11 @@
-# Serenity feed：股價（yfinance）＋ 最新貼文（X API，可選）
+# Serenity feed：股價 ＋ 最新貼文 ＋ AI 觀點標註 ＋ 手機版 dashboard
 
 呢個 repo 每小時喺 GitHub Actions 自動運行，產生 `feed/feed.json`，畀你嘅 Serenity Stock Tracker dashboard 讀取：
 
 - **股價**：用 Yahoo Finance（`yfinance`）下載每日收市價，免費。美股收市後（約 21:00 UTC 後）每日更新一次。
 - **最新貼文（可選）**：如果你設定咗 X API 金鑰，每小時抓取 @aleabitoreddit 嘅新貼文，令 dashboard 比 GitHub 存檔（每日約更新兩次）更即時。
+- **AI 觀點標註（可選）**：如果你設定咗 OpenAI 金鑰，每小時自動標註新貼文嘅看好／看淡／中性，結果寫入 `feed.json`，所有裝置都睇到同一套觀點。
+- **Dashboard 網頁（`index.html`）**：開啟 GitHub Pages 之後，電話、平板、任何電腦都可以用同一條網址睇。
 - 歷史貼文由 yan-labs 存檔提供，呢度唔會重複下載，所以 X API 只需為新貼文付費。
 
 ## 設定步驟
@@ -28,6 +30,38 @@
 4. 完成。下一次每小時運行就會開始抓新貼文。
 
 **費用控制**：腳本用 `since_id` 只抓上次之後嘅新貼文，第一次只抓最近 2 日（歷史由存檔提供），亦唔會讀取用戶資料（每次 US$0.010），所以費用只取決於 Serenity 發咗幾多新貼文，同運行頻率無關。
+
+## 用電話睇：開啟 GitHub Pages
+
+1. 確認 `index.html` 已經喺 repo 最頂層（同 `README.md` 同一層）。
+2. repo → Settings → Pages → Build and deployment：Source 揀「Deploy from a branch」，Branch 揀 `main`、資料夾揀 `/ (root)`，撳 Save。
+3. 等 1–2 分鐘，網址會係：`https://<你的GitHub帳戶>.github.io/serenity-feed/`
+4. 用電話打開呢條網址。iPhone 可以喺 Safari 撳「分享 → 加入主畫面」，用起嚟似 App。
+
+Dashboard 會自動讀取同一個 repo 入面嘅 `feed/feed.json`，唔使喺電話設定數據源網址。
+
+**私隱**：GitHub Pages 係公開網頁，知道網址嘅人都睇到（頁面已設定唔畀搜尋器收錄）。網頁入面冇任何金鑰。
+
+## （可選）AI 觀點標註交畀 GitHub Actions
+
+咁樣電話唔使輸入 OpenAI 金鑰都見到觀點，所有裝置一致。
+
+1. repo → Settings → Secrets and variables → Actions → New repository secret
+   - Name：`OPENAI_API_KEY`
+   - Secret：你嘅 OpenAI 金鑰（建議專門開一條，只容許 `gpt-5-mini`）
+2. （可選）同一頁嘅「Variables」分頁可以加：
+   - `TAG_DAYS`：標註幾多日內嘅貼文，預設 `90`；設為 `0` 即標註全部歷史（一次性約 US$1–1.5）。
+   - `OPENAI_MODEL`：預設 `gpt-5-mini`。
+3. 去 Actions → Run workflow。第一次會標註過去 90 日約 400 則貼文（約 US$0.10），之後每小時只標註新貼文。
+
+**已經喺瀏覽器標註過？匯入就唔使再付費：**
+1. 喺**之前標註嗰部電腦、同一個瀏覽器**打開 dashboard →「設定」→「匯出觀點」，會下載 `stances_import.json`。
+2. 喺 repo 打開 `feed` 資料夾 → Add file → Upload files，上載呢個檔案（檔名要係 `stances_import.json`）。
+3. Run workflow。紀錄會顯示「Imported … ticker stances」，已有觀點嘅貼文唔會再送去 OpenAI；匯入完成後個檔案會自動刪除。
+
+每次運行最多標註 800 則（防止意外高額收費），未完成嘅部分下次自動繼續。運行紀錄入面「Stances:」嗰幾行會顯示進度。
+
+用電話問 AI 問題（AI 問答／翻譯）仍然需要喺電話嘅「設定」輸入 OpenAI 金鑰；只睇數據就唔使。
 
 ## 代號對照（ticker_map.json）
 

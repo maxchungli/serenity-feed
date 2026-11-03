@@ -1,0 +1,1955 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Serenity Stock Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔭</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E9EDE6; --surface:#F7F8F4; --surface-2:#DFE5DB; --ink:#17201B; --ink-2:#47524C; --ink-3:#717C75;
+  --line:#C5CCC2; --bull:#2B6A4D; --bull-bg:#D7EADD; --bear:#A33A28; --bear-bg:#F3DAD3;
+  --neu:#7A6B26; --neu-bg:#EDE6C8; --shift:#36569A; --shift-bg:#DCE4F4;
+  --accent:#1E4A38; --accent-ink:#EEF4EF; --focus:#2563C9;
+  --sans:"Public Sans","Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Fraunces","Noto Serif TC","Songti TC",Georgia,"Times New Roman",serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#111714; --surface:#19211D; --surface-2:#222C27; --ink:#E2E8E3; --ink-2:#ADB8B1; --ink-3:#7E8A83;
+    --line:#33403A; --bull:#7EC6A1; --bull-bg:#1D3428; --bear:#EE8E78; --bear-bg:#3B221C;
+    --neu:#D8C67B; --neu-bg:#322D19; --shift:#A0B6EC; --shift-bg:#1F2A43;
+    --accent:#7EC6A1; --accent-ink:#0E1411; --focus:#8DB8F2; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111714; --surface:#19211D; --surface-2:#222C27; --ink:#E2E8E3; --ink-2:#ADB8B1; --ink-3:#7E8A83;
+  --line:#33403A; --bull:#7EC6A1; --bull-bg:#1D3428; --bear:#EE8E78; --bear-bg:#3B221C;
+  --neu:#D8C67B; --neu-bg:#322D19; --shift:#A0B6EC; --shift-bg:#1F2A43;
+  --accent:#7EC6A1; --accent-ink:#0E1411; --focus:#8DB8F2; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.55 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1240px;margin:0 auto;padding:22px clamp(14px,3vw,32px) 56px}
+
+/* Header */
+header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:14px}
+.brand h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,4vw,40px);letter-spacing:-.015em;margin:0;line-height:1.05}
+.brand p{margin:8px 0 0;color:var(--ink-2);max-width:64ch;font-size:14px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--surface)}
+.seg button{border:0;background:transparent;color:var(--ink-2);padding:6px 13px;border-radius:999px;font-size:13px;cursor:pointer;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 13px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.status{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px;color:var(--ink-2);padding:10px 0 4px}
+.src{display:inline-flex;align-items:center;gap:6px;font-weight:600;padding:2px 9px;border-radius:999px;font-size:12px}
+.src::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.src.demo{background:var(--neu-bg);color:var(--neu)}
+.src.url{background:var(--bull-bg);color:var(--bull)}
+.src.file{background:var(--shift-bg);color:var(--shift)}
+.status .spacer{flex:1}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);cursor:pointer;font-weight:600;font-size:13px;text-decoration:underline;text-underline-offset:3px}
+
+.banner{margin-top:12px;background:var(--neu-bg);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.banner b{color:var(--neu)}
+
+nav.tabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);margin-top:14px;scrollbar-width:none}
+nav.tabs button{border:0;background:none;padding:11px 15px 9px;border-bottom:3px solid transparent;color:var(--ink-2);cursor:pointer;white-space:nowrap;font-weight:500;font-size:14.5px}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+
+/* View head */
+.vhead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:26px 0 2px}
+.vhead h2{font-family:var(--serif);font-size:clamp(32px,4.6vw,46px);margin:0;font-weight:600;letter-spacing:-.02em;line-height:1}
+.datebadge{background:var(--accent);color:var(--accent-ink);padding:5px 11px;border-radius:6px;font-weight:600;font-size:15px;letter-spacing:.01em}
+.vmeta{color:var(--ink-2);font-size:14px;margin-top:8px}
+
+details.sec{margin-top:24px}
+details.sec>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line)}
+details.sec>summary::-webkit-details-marker{display:none}
+details.sec>summary::before{content:"";width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--ink);transform:rotate(-90deg);transition:transform .15s;align-self:center}
+details.sec[open]>summary::before{transform:none}
+details.sec>summary h3{margin:0;font-size:15.5px;font-weight:600}
+details.sec>summary .hint{color:var(--ink-3);font-size:13px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin-top:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:16px 18px 14px;display:flex;flex-direction:column;gap:10px;cursor:pointer;text-align:left;width:100%}
+.card:hover{box-shadow:0 0 0 1px var(--ink-3)}
+.card.bull{border-left-color:var(--bull)} .card.bear{border-left-color:var(--bear)} .card.neu{border-left-color:var(--neu)}
+.hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tk{font-weight:700;font-size:19px;letter-spacing:.02em}
+.ccy{font-size:10.5px;font-weight:600;color:var(--neu);border:1px solid currentColor;border-radius:4px;padding:0 4px;line-height:16px}
+.nm{color:var(--ink-2);font-size:13px}
+.delta{font-size:12px;font-weight:600;border-radius:4px;padding:1px 6px}
+.delta.up{color:var(--bull);background:var(--bull-bg)} .delta.down{color:var(--bear);background:var(--bear-bg)} .delta.na{color:var(--ink-3);background:var(--surface-2)}
+.lbl{color:var(--ink-3);font-size:12.5px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;border-radius:6px;padding:3px 9px;white-space:nowrap}
+.pill.bull{color:var(--bull);background:var(--bull-bg)} .pill.bear{color:var(--bear);background:var(--bear-bg)}
+.pill.neu{color:var(--neu);background:var(--neu-bg)} .pill.none{color:var(--ink-3);background:var(--surface-2)}
+.pill.shift{color:var(--shift);background:var(--shift-bg)}
+.hd .pill:first-of-type{margin-left:auto}
+.mrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line);padding-top:10px}
+.big{font-family:var(--serif);font-size:46px;line-height:.95;font-weight:600;letter-spacing:-.02em}
+.sub{color:var(--ink-2);font-size:13px}
+.sub b{color:var(--ink);font-weight:700}
+.srow{font-size:13px;color:var(--ink-2)}
+.c-bull{color:var(--bull);font-weight:700;font-size:15px} .c-bear{color:var(--bear);font-weight:700;font-size:15px} .c-neu{color:var(--ink);font-weight:700;font-size:15px}
+.ft{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-3)}
+.ft .go{color:var(--accent);font-weight:600}
+
+.rows{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.row{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--bear);border-radius:10px;padding:11px 14px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;cursor:pointer;text-align:left;width:100%}
+.row.shift{border-left-color:var(--shift)}
+.row:hover{box-shadow:0 0 0 1px var(--ink-3)}
+.row .r1{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row .r2{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.row .r3{color:var(--ink-2);font-size:13px}
+.row .r4{text-align:right;font-size:12.5px;color:var(--accent);font-weight:600}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:14px 16px;color:var(--ink-2);margin-top:14px;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--surface-2);border-radius:6px;padding:3px 8px;font-size:12.5px;cursor:pointer;font-weight:600}
+.chip span{color:var(--ink-3);font-weight:500;margin-left:3px}
+.chip:hover{border-color:var(--ink-3)}
+.chip.new{background:var(--bull-bg);border-color:transparent;color:var(--bull)}
+
+/* Monthly ranking */
+ol.rank{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:10px}
+ol.rank li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;display:grid;grid-template-columns:34px 1fr auto;gap:2px 10px;align-items:baseline}
+ol.rank li:hover{box-shadow:0 0 0 1px var(--ink-3)}
+.rk{font-family:var(--serif);font-size:24px;color:var(--ink-3);grid-row:span 3;line-height:1}
+.mix{grid-column:2/4;display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--surface-2);margin:6px 0 4px}
+.mix i{display:block;height:100%}
+.mix .b{background:var(--bull)} .mix .r{background:var(--bear)} .mix .n{background:var(--neu);opacity:.6}
+.rk-meta{grid-column:2/4;display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--ink-2)}
+.rk-meta b{color:var(--ink);font-size:15px}
+
+/* Quarterly */
+.qbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px clamp(16px,3vw,28px);margin-top:14px}
+.qnums{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;text-align:center}
+.qnums .big{font-size:clamp(38px,6vw,58px)}
+.qnums .lbl{font-size:13px;color:var(--ink-2);margin-top:6px;display:block}
+.qbar{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:20px 0 12px;background:var(--surface-2)}
+.qbar i{display:block;height:100%}
+.qtext{font-size:14px;color:var(--ink-2);max-width:86ch}
+.qtext b.bull{color:var(--bull)} .qtext b.bear{color:var(--bear)}
+.fine{font-size:12.5px;color:var(--ink-3);margin-top:8px}
+.tbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.tbar input[type=search]{flex:1;min-width:200px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 11px}
+.tbar label{font-size:13px;color:var(--ink-2);display:flex;gap:6px;align-items:center}
+.tablewrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);max-height:640px;overflow-y:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:820px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{position:sticky;top:0;background:var(--surface-2);z-index:1}
+th button{border:0;background:none;padding:0;font-weight:600;cursor:pointer;font-size:13px;color:var(--ink)}
+th[aria-sort] button::after{content:" ↕";color:var(--ink-3)}
+th[aria-sort="descending"] button::after{content:" ↓";color:var(--ink)}
+th[aria-sort="ascending"] button::after{content:" ↑";color:var(--ink)}
+td.num,th.num{text-align:right}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--surface-2)}
+td small{display:block;color:var(--ink-3);font-size:11.5px}
+
+/* Drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,14,12,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.scrim.on{opacity:1;pointer-events:auto}
+aside.drawer{position:fixed;top:0;right:0;bottom:0;width:min(760px,100%);background:var(--paper);z-index:31;transform:translateX(102%);transition:transform .25s ease;display:flex;flex-direction:column;border-left:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+aside.drawer.on{transform:none}
+.dhead{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:2px solid var(--ink);flex-wrap:wrap}
+.dhead h2{font-family:var(--serif);font-size:34px;margin:0;line-height:1;font-weight:600}
+.dhead .close{margin-left:auto}
+.dbody{overflow-y:auto;padding:16px 20px 40px;flex:1}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:4px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+.stat .lbl{display:block}
+.stat b{font-size:19px;font-weight:700}
+.chart{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
+.chart svg{width:100%;height:auto;display:block;touch-action:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);padding:4px 6px 0}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+h4.dsec{font-size:15px;margin:22px 0 8px;font-weight:600}
+ul.hist{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+ul.hist li{position:relative;padding:8px 0 10px 16px}
+ul.hist li::before{content:"";position:absolute;left:-6px;top:15px;width:10px;height:10px;border-radius:50%;background:var(--ink-3);border:2px solid var(--paper)}
+ul.hist li.bull::before{background:var(--bull)} ul.hist li.bear::before{background:var(--bear)} ul.hist li.neu::before{background:var(--neu)}
+.hmeta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3)}
+.htext{margin:4px 0 0;font-size:14px;max-width:72ch}
+.ext{font-size:12.5px;font-weight:600}
+
+/* AI */
+.ai{display:grid;grid-template-columns:320px 1fr;gap:20px;margin-top:24px;align-items:start}
+.ai-side{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;position:sticky;top:12px}
+.ai-side h2{font-family:var(--serif);font-size:26px;margin:0 0 6px;font-weight:600;line-height:1.1}
+.ai-side p{margin:0 0 12px;color:var(--ink-2);font-size:13.5px}
+.keyst{font-size:13px;border-radius:8px;padding:8px 10px;margin-bottom:12px}
+.keyst.ok{background:var(--bull-bg);color:var(--bull)} .keyst.no{background:var(--bear-bg);color:var(--bear)}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;font-size:13px;font-weight:600}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px 10px;font-weight:400;width:100%}
+.field small{font-weight:400;color:var(--ink-3);font-size:12px}
+.quick{display:flex;flex-direction:column;gap:6px}
+.quick .btn{justify-content:flex-start;text-align:left}
+.ai-main{display:flex;flex-direction:column;gap:12px;min-width:0}
+.chatlog{display:flex;flex-direction:column;gap:14px;min-height:280px}
+.msg{border-radius:12px;padding:14px 16px;max-width:100%}
+.msg.user{background:var(--accent);color:var(--accent-ink);align-self:flex-end;max-width:85%}
+.msg.assistant{background:var(--surface);border:1px solid var(--line)}
+.msg.err{background:var(--bear-bg);color:var(--bear);border-color:transparent}
+.msg .who{font-size:12px;font-weight:600;opacity:.75;margin-bottom:4px}
+.md{font-size:14.5px;line-height:1.6;overflow-wrap:anywhere}
+.md h1,.md h2,.md h3,.md h4{font-family:var(--serif);font-weight:600;margin:16px 0 6px;line-height:1.2}
+.md h2{font-size:21px} .md h3{font-size:18px} .md h1{font-size:23px}
+.md>*:first-child{margin-top:0}
+.md p{margin:6px 0} .md ul,.md ol{margin:6px 0;padding-left:22px} .md li{margin:3px 0}
+.md code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:13px}
+.md table{min-width:min(640px,100%);margin:8px 0;font-size:13px} .md td,.md th{padding:6px 8px;overflow-wrap:normal;word-break:normal} .md td:first-child{white-space:nowrap}
+.kb-doc .md table{min-width:760px}
+#dKB{max-height:460px;overflow-y:auto}
+.md hr{border:0;border-top:1px solid var(--line);margin:12px 0}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--ink-3);vertical-align:-2px;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.composer{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;position:sticky;bottom:10px}
+.composer textarea{border:0;background:transparent;resize:vertical;min-height:62px;padding:6px;outline:none}
+.composer .bar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.welcome{color:var(--ink-2);font-size:14px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:16px 18px}
+.welcome ul{margin:8px 0 0;padding-left:20px}
+
+/* Settings dialog */
+dialog{border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink);padding:0;width:min(620px,94vw);max-height:90vh}
+dialog::backdrop{background:rgba(10,14,12,.5)}
+.dlg{padding:20px 22px;overflow-y:auto;max-height:calc(90vh - 70px)}
+.dlg h2{font-family:var(--serif);margin:0 0 4px;font-size:28px;font-weight:600}
+.dlg h3{font-size:15px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.dlg-ft{display:flex;justify-content:flex-end;gap:8px;padding:12px 22px;border-top:1px solid var(--line)}
+.inline{display:flex;gap:6px}
+.inline input{flex:1}
+pre.schema{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:12px;overflow-x:auto;white-space:pre}
+.testres{font-size:13px;margin-top:-4px;margin-bottom:10px}
+
+footer.disc{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-3);max-width:90ch}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:13.5px;opacity:0;pointer-events:none;transition:all .2s;z-index:60;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+
+/* Stance tagging bar */
+.tagbar{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--shift);border-radius:10px;padding:12px 14px;font-size:13.5px;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap}
+.tagbar p{margin:0;flex:1;min-width:240px;color:var(--ink-2)}
+.prog{flex-basis:100%;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--shift);transition:width .3s}
+.metrics{color:var(--ink-3);font-size:12px}
+.tkl{border:0;background:none;padding:0;font:inherit;color:var(--accent);font-weight:600;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}
+.md blockquote{margin:8px 0;padding:6px 12px;border-left:3px solid var(--line);color:var(--ink-2);background:var(--surface-2);border-radius:0 6px 6px 0}
+.md pre{background:var(--surface-2);border-radius:8px;padding:10px;overflow-x:auto;font-size:12.5px}
+.md pre code{background:none;padding:0}
+/* Research library */
+.kb{display:grid;grid-template-columns:240px 1fr;gap:20px;margin-top:24px;align-items:start}
+.kb-nav{display:flex;flex-direction:column;gap:4px;position:sticky;top:12px}
+.kb-nav button{border:1px solid transparent;background:none;text-align:left;padding:8px 11px;border-radius:8px;cursor:pointer;font-weight:500;color:var(--ink-2)}
+.kb-nav button[aria-current="true"]{background:var(--surface);border-color:var(--line);color:var(--ink);font-weight:600}
+.kb-nav select{margin:2px 0 0 11px;width:calc(100% - 11px);border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 8px}
+.kb-main{min-width:0}
+.kb-doc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px clamp(16px,3vw,28px);margin-top:12px}
+.kb-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kb-tools input{flex:1;min-width:200px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 11px}
+.kbbox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-top:8px}
+.kbbox h5{margin:14px 0 6px;font-size:13px;color:var(--ink-3);font-weight:600}
+.kbbox h5:first-child{margin-top:0}
+@media (max-width:860px){
+  .kb{grid-template-columns:1fr}
+  .kb-nav{position:static;flex-direction:row;flex-wrap:wrap}
+  .ai{grid-template-columns:1fr}
+  .ai-side{position:static}
+  .qnums{grid-template-columns:repeat(2,1fr);row-gap:20px}
+  ol.rank{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .wrap{padding-top:14px}
+  .brand p{display:none}
+  .brand h1{font-size:27px}
+  header.top{gap:10px;padding-bottom:10px}
+  .status{font-size:12px;gap:2px 10px}
+  .status .spacer{display:none}
+  .vhead{margin-top:16px}
+  .grid{grid-template-columns:1fr}
+  .row{grid-template-columns:1fr}
+  .row .r2,.row .r4{justify-content:flex-start;text-align:left}
+  .big{font-size:40px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1 data-i18n="appTitle">Serenity Stock Tracker</h1>
+      <p data-i18n="appSub"></p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Language">
+        <button type="button" data-lang="en">English</button>
+        <button type="button" data-lang="zh">繁體中文</button>
+      </div>
+      <button type="button" class="btn ghost" id="themeBtn"></button>
+      <button type="button" class="btn" id="settingsBtn" data-i18n="settings">Settings</button>
+    </div>
+  </header>
+
+  <div class="status" id="status"></div>
+  <div id="bannerSlot"></div>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-view="daily">📅 <span data-i18n="tabDaily"></span></button>
+    <button role="tab" data-view="weekly">📆 <span data-i18n="tabWeekly"></span></button>
+    <button role="tab" data-view="monthly">📈 <span data-i18n="tabMonthly"></span></button>
+    <button role="tab" data-view="quarterly">📊 <span data-i18n="tabQuarterly"></span></button>
+    <button role="tab" data-view="kb">📚 <span data-i18n="tabKB"></span></button>
+    <button role="tab" data-view="ai">🤖 <span data-i18n="tabAI"></span></button>
+  </nav>
+
+  <main id="view" role="tabpanel"></main>
+
+  <footer class="disc" data-i18n="disclaimer"></footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Stock detail"></aside>
+
+<dialog id="settingsDlg">
+  <div class="dlg" id="settingsBody"></div>
+  <div class="dlg-ft">
+    <button type="button" class="btn" id="setCancel" data-i18n="cancel">Cancel</button>
+    <button type="button" class="btn primary" id="setSave" data-i18n="save">Save</button>
+  </div>
+</dialog>
+
+<input type="file" id="fileInput" accept="application/json,.json" hidden>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   Basics
+   ============================================================ */
+const ACCOUNT = 'aleabitoreddit';
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} }
+};
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dn = s => { const [y,m,d] = String(s).slice(0,10).split('-').map(Number); return Math.round(Date.UTC(y,m-1,d)/864e5); };
+const ds = n => new Date(n*864e5).toISOString().slice(0,10);
+const ET_FMT = new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
+const etDate = d => { const p = ET_FMT.formatToParts(d); const g = t => p.find(x=>x.type===t).value; return `${g('year')}-${g('month')}-${g('day')}`; };
+const pct = x => x==null || !isFinite(x) ? null : x*100;
+const fmtPct = x => x==null ? '—' : (x>=0?'+':'') + (Math.abs(x)>=1000 ? x.toFixed(0) : x.toFixed(1)) + '%';
+const dCls = x => x==null ? 'na' : x>=0 ? 'up' : 'down';
+const fmtPx = v => v==null ? '—' : (v>=1000 ? v.toLocaleString('en-US',{maximumFractionDigits:0}) : v>=1 ? v.toFixed(2) : v.toFixed(4));
+
+const state = {
+  lang: store.get('sst.lang') || (((navigator.language||'').toLowerCase().startsWith('zh')) ? 'zh' : 'en'),
+  theme: store.get('sst.theme') || 'auto',
+  view: 'daily',
+  D: null,
+  source: 'demo',          // 'demo' | 'live'
+  demo: store.get('sst.demo')==='1',
+  archiveRaw: null, archiveId: null, sync: null,
+  feedRaw: null, fileRaw: null,
+  loading: false,
+  tag: null,               // {done,total,abort}
+  kb: {docs:{}, view:'theses', analysis:'', q:'', tr:{}},
+  nextAt: null,
+  sort: {key:'m', dir:-1},
+  only3: true,
+  q: '',
+  chat: [],
+  aiTicker: '',
+  abort: null,
+  detail: null
+};
+const cfg = () => ({
+  key: store.get('sst.key') || '',
+  model: store.get('sst.model') || 'gpt-5-mini',
+  base: store.get('sst.base') || 'https://api.openai.com/v1',
+  feed: store.get('sst.feed') || '',
+  auto: store.get('sst.auto') !== '0',
+  archive: store.get('sst.archive') !== '0',
+  autoTag: store.get('sst.autotag') !== '0'
+});
+// AI-tagged stances, saved per post id: {id: {TICKER: 'bull'|'bear'|'neu'|'none'}}
+let STC = {};
+try { STC = JSON.parse(store.get('sst.stances') || '{}') || {}; } catch(e){ STC = {}; }
+const saveSTC = () => store.set('sst.stances', JSON.stringify(STC));
+
+/* ============================================================
+   Language
+   ============================================================ */
+const I18N = {
+en:{
+  appTitle:'Serenity Stock Tracker',
+  appSub:"Bullish, bearish and neutral calls from @aleabitoreddit’s public posts on X, organised by day, week, month and quarter, with an AI analyst you connect to your own OpenAI account.",
+  settings:'Settings', tabDaily:'Daily', tabWeekly:'Weekly', tabMonthly:'Monthly', tabQuarterly:'Quarterly', tabAI:'AI Q&A',
+  srcdemo:'Demo data', srcurl:'Live feed', srcfile:'Imported file',
+  updated:'Updated ET {d}', local:'Your local time: {d}', next:'Next refresh {t} UTC', nextOff:'Hourly refresh off',
+  refresh:'Refresh now', refreshing:'Refreshing…', refreshed:'Data refreshed',
+  demoNotice:'You’re looking at demo data: posts and prices are simulated so you can try every view. Add your feed URL or import a JSON export in Settings to see real data.',
+  openSettings:'Open settings',
+  themeauto:'◐ Auto', themelight:'☀ Light', themedark:'☾ Dark',
+  sumDaily:'{n} names, {m} mentions today', sumWeekly:'Last 7 days: {n} names, {m} mentions', sumMonthly:'Last 28 days: {n} names, {m} mentions', sumQuarterly:'Last 90 days: {n} names, {m} mentions',
+  most1:'Most discussed today', most7:'Most discussed this week', most28:'Most discussed this month, with stance mix',
+  mostHint:'Ranked by mentions. Stance counts only posts inside this window.',
+  notable1:'Notable today: bearish calls and stance shifts', notable7:'Notable this week: bearish calls and stance shifts',
+  new1:'New today', new7:'New this week', new28:'New this month', other:'Other mentions',
+  noNotable:'No bearish calls or stance shifts in this window.',
+  noNew:'No name was mentioned for the first time in this window.',
+  newCount:'{n} mentioned for the first time. Tap one for details.',
+  otherCount:'{n} more names mentioned, ongoing or in passing. Tap one for details.',
+  mToday:'Mentions today', mWeek:'Mentions this week', mMonth:'Mentions in 28 days',
+  stance:'Stance', bullW:'bull', bearW:'bear', neuW:'neu',
+  bullish:'Bullish', bearish:'Bearish', neutral:'Neutral', nostance:'No stance',
+  sfx1:'today', sfx7:'this week', sfx28:'this month', sfx90:'this quarter',
+  vsPrior:'vs prior close', since:'since first mention',
+  first:'First mention {d}', latest:'Latest {d}', details:'Details',
+  shiftTo:'Shift: {a} → {b}',
+  thisMonth:'this month',
+  qDir:'Quarter direction', qDirHint:'Counted by names, not by number of stances',
+  netBull:'Net-bullish names', netBear:'Net-bearish names', balanced:'Balanced', withStance:'Names with a stance',
+  qText:'By names: <b class="bull">{b}%</b> net-bullish, <b class="bear">{r}%</b> net-bearish ({x} bearish-only). All stances: {tb} bull, {tr} bear, {tn} neutral. A few high-frequency names dominate raw counts, so direction is judged by names.',
+  method:'Stances are AI-inferred opinions expressed in posts. They are not disclosed holdings and can be wrong.',
+  allNames:'All names this quarter', allHint:'Tap a column to sort, tap a row for details',
+  only3:'Only names with 3+ mentions', filter:'Filter by ticker, name or industry',
+  thTicker:'Ticker', thInd:'Industry', thFirst:'First mention', thLatest:'Latest mention', thGain:'Gain', thM:'Mentions', thB:'Bull', thR:'Bear', thN:'Neutral',
+  noRows:'No names match this filter.',
+  close:'Close', priceSince:'Price since first mention', logScale:'log scale', demoPx:'Demo prices are simulated.',
+  noPx:'No price data for this name yet.',
+  hist:'Stance history ({n} posts)', openPost:'Open post ↗', showAll:'Show all {n} posts',
+  askAI:'Ask AI about {t}',
+  latestStance:'Latest explicit stance', lastPx:'Last price', gainFirst:'Gain since first mention',
+  mentions:'Mentions', all:'All time', d1:'Today', d7:'7d', d28:'28d', d90:'90d',
+  firstLbl:'First mention', latestLbl:'Latest mention',
+  legBull:'Bullish post', legBear:'Bearish post', legNeu:'Neutral post',
+  aiTitle:'Ask about any tracked stock',
+  aiIntro:'Answers use the tracked posts as evidence and your OpenAI model for the analysis, written from a professional trader’s point of view. Claims about Serenity’s views link to the original posts.',
+  keyOk:'Connected to OpenAI, model {m}', keyNo:'Add your OpenAI API key in Settings to get AI answers.',
+  stock:'Stock', anyStock:'Any stock (type or pick)',
+  qFull:'🎯 Full analysis', qLatest:'🧭 Latest opinion', qRisk:'⚠️ Risks mentioned', qTrade:'📈 Trader’s view', qBull:'🔥 Most bullish names now',
+  pickFirst:'Choose a stock first, then pick a question.',
+  pFull:'Give me the full analysis of {t}: latest opinion, thesis narrative, 3 key opinions, risks mentioned, and your trader’s view.',
+  pLatest:'What is Serenity’s latest explicit stance on {t}? Link the post and say how it compares with earlier posts.',
+  pRisk:'What risks or concerns have been mentioned about {t}? Link each one to its post.',
+  pTrade:'As a professional trader, how would you approach {t} right now given the posting history and price action? Cover crowding, catalysts, what would invalidate the thesis, and risk management.',
+  pBull:'Which names are most bullish in the last 28 days, and which look most crowded after their run since first mention?',
+  placeholder:'Ask anything, e.g. “Tell me about SIVE” or “What are the risks for AXTI?”',
+  send:'Send', stop:'Stop', clear:'Clear chat', you:'You', analyst:'AI analyst',
+  aiErr:'The request failed: {e}. Check your API key, model name and network in Settings, then try again.',
+  stopped:'(stopped)',
+  welcome:'Pick a stock and a quick question, or type your own. Good starting points:',
+  w1:'“Tell me about SIVE” for the full thesis arc', w2:'“What are the risks for AXTI?”', w3:'“What stocks are bullish?”', w4:'“Compare LITE and AAOI as a trade”',
+  aiFine:'AI answers can be wrong. Not investment advice; check the linked posts before acting.',
+  setTitle:'Settings', secAI:'OpenAI connection', apiKey:'API key',
+  keyHelp:'Saved only in this browser on this device and sent only to the API address below. Set a monthly spend limit on your OpenAI account.',
+  show:'Show', hide:'Hide', model:'Model', modelHelp:'Any chat model your key can use, e.g. gpt-5, gpt-5-mini, gpt-4.1.',
+  base:'API base URL', baseHelp:'Leave as is for OpenAI. Change only for an OpenAI-compatible proxy.',
+  test:'Test connection', testing:'Testing…', testOk:'Connected: the model replied.', removeKey:'Remove key',
+  secData:'Data feed', feedUrl:'Feed URL (JSON)',
+  feedHelp:'A JSON export of the tracker. It reloads every hour on the hour (UTC) plus 2 minutes, matching the tracker’s hourly update. The server must allow cross-origin requests.',
+  auto:'Refresh every hour', importFile:'Import JSON file', useDemo:'Switch to demo data', schema:'Feed format',
+  save:'Save', cancel:'Cancel', saved:'Settings saved',
+  loadErr:'Couldn’t load the feed ({e}). Still showing the last data that loaded.',
+  fileErr:'That file isn’t a valid tracker export ({e}).', fileOk:'Imported {n} posts',
+  disclaimer:'Fan-built research view of public posts by @aleabitoreddit (Serenity); not affiliated with Serenity. Stance labels are AI-inferred and may be inaccurate. Nothing here is investment advice; always check the original posts and verify independently.'
+},
+zh:{
+  appTitle:'Serenity 股票觀點追蹤',
+  appSub:'整理 @aleabitoreddit 在 X 公開貼文中對個股的看好、看淡及中性觀點，可按日、週、月、季檢視，並由你連接自己的 OpenAI 帳戶作 AI 分析。',
+  settings:'設定', tabDaily:'每日', tabWeekly:'每週', tabMonthly:'每月', tabQuarterly:'每季', tabAI:'AI 問答',
+  srcdemo:'示範數據', srcurl:'即時數據源', srcfile:'已匯入檔案',
+  updated:'更新時間（美東）{d}', local:'你的本地時間：{d}', next:'下次更新 {t} UTC', nextOff:'已關閉每小時更新',
+  refresh:'立即更新', refreshing:'更新中…', refreshed:'數據已更新',
+  demoNotice:'你正在查看示範數據：貼文及股價均為模擬，方便你試用各個檢視。請在「設定」加入數據源網址或匯入 JSON 檔，以查看真實數據。',
+  openSettings:'開啟設定',
+  themeauto:'◐ 自動', themelight:'☀ 淺色', themedark:'☾ 深色',
+  sumDaily:'今日 {n} 隻股票，共 {m} 次提及', sumWeekly:'過去 7 日：{n} 隻股票，{m} 次提及', sumMonthly:'過去 28 日：{n} 隻股票，{m} 次提及', sumQuarterly:'過去 90 日：{n} 隻股票，{m} 次提及',
+  most1:'今日最多討論', most7:'本週最多討論', most28:'本月最多討論及觀點分佈',
+  mostHint:'按提及次數排列；觀點只計算此時段內的貼文。',
+  notable1:'今日焦點：看淡及觀點轉變', notable7:'本週焦點：看淡及觀點轉變',
+  new1:'今日新增', new7:'本週新增', new28:'本月新增', other:'其他提及',
+  noNotable:'此時段內沒有看淡或觀點轉變的股票。',
+  noNew:'此時段內沒有首次被提及的股票。',
+  newCount:'{n} 隻股票首次被提及，點擊查看詳情。',
+  otherCount:'另有 {n} 隻股票被持續或順帶提及，點擊查看詳情。',
+  mToday:'今日提及', mWeek:'本週提及', mMonth:'28 日提及',
+  stance:'觀點', bullW:'看好', bearW:'看淡', neuW:'中性',
+  bullish:'看好', bearish:'看淡', neutral:'中性', nostance:'無明確觀點',
+  sfx1:'（今日）', sfx7:'（本週）', sfx28:'（本月）', sfx90:'（本季）',
+  vsPrior:'較前收市', since:'自首次提及',
+  first:'首次提及 {d}', latest:'最近 {d}', details:'詳情',
+  shiftTo:'觀點轉變：{a} → {b}',
+  thisMonth:'本月',
+  qDir:'本季方向', qDirHint:'按股票數目計算，而非觀點次數',
+  netBull:'淨看好股票', netBear:'淨看淡股票', balanced:'持平', withStance:'有觀點的股票',
+  qText:'按股票數目：<b class="bull">{b}%</b> 淨看好，<b class="bear">{r}%</b> 淨看淡（其中 {x} 隻只有看淡）。全部觀點：看好 {tb}、看淡 {tr}、中性 {tn}。少數高頻股票主導原始次數，所以方向以股票數目判斷。',
+  method:'觀點是 AI 從貼文推斷的意見，並非披露的持倉，亦可能有誤。',
+  allNames:'本季所有股票', allHint:'點擊欄位排序，點擊列查看詳情',
+  only3:'只顯示提及 3 次或以上', filter:'按代號、名稱或行業篩選',
+  thTicker:'代號', thInd:'行業', thFirst:'首次提及', thLatest:'最近提及', thGain:'升幅', thM:'提及', thB:'看好', thR:'看淡', thN:'中性',
+  noRows:'沒有符合篩選的股票。',
+  close:'關閉', priceSince:'自首次提及以來的股價', logScale:'對數刻度', demoPx:'示範股價為模擬數據。',
+  noPx:'此股票暫時沒有股價數據。',
+  hist:'觀點紀錄（{n} 則貼文）', openPost:'開啟貼文 ↗', showAll:'顯示全部 {n} 則貼文',
+  askAI:'用 AI 分析 {t}',
+  latestStance:'最新明確觀點', lastPx:'最新股價', gainFirst:'自首次提及升幅',
+  mentions:'提及次數', all:'全部', d1:'今日', d7:'7 日', d28:'28 日', d90:'90 日',
+  firstLbl:'首次提及', latestLbl:'最近提及',
+  legBull:'看好貼文', legBear:'看淡貼文', legNeu:'中性貼文',
+  aiTitle:'查詢任何追蹤中的股票',
+  aiIntro:'答案以追蹤到的貼文作證據，並由你的 OpenAI 模型以專業交易員角度分析。所有關於 Serenity 觀點的說法都附原文連結。',
+  keyOk:'已連接 OpenAI，模型 {m}', keyNo:'請在「設定」加入你的 OpenAI API 金鑰以使用 AI 分析。',
+  stock:'股票', anyStock:'任何股票（輸入或選擇）',
+  qFull:'🎯 完整分析', qLatest:'🧭 最新觀點', qRisk:'⚠️ 提及的風險', qTrade:'📈 交易員角度', qBull:'🔥 目前最看好的股票',
+  pickFirst:'請先選擇股票，再選問題。',
+  pFull:'請完整分析 {t}：最新觀點、論點演變、3 個關鍵觀點、提及的風險，以及你作為交易員的看法。',
+  pLatest:'Serenity 對 {t} 最新的明確觀點是甚麼？請附上貼文連結，並比較之前的貼文。',
+  pRisk:'有關 {t} 曾提及哪些風險或疑慮？每一點請連結到相關貼文。',
+  pTrade:'以專業交易員角度，根據貼文紀錄及股價走勢，你現在會如何部署 {t}？請涵蓋擁擠程度、催化劑、論點失效條件及風險管理。',
+  pBull:'過去 28 日最被看好的是哪些股票？自首次提及以來升幅最大、交易最擁擠的又是哪些？',
+  placeholder:'輸入任何問題，例如「講解 SIVE」或「AXTI 有甚麼風險？」',
+  send:'發送', stop:'停止', clear:'清除對話', you:'你', analyst:'AI 分析師',
+  aiErr:'請求失敗：{e}。請在「設定」檢查 API 金鑰、模型名稱及網絡後再試。',
+  stopped:'（已停止）',
+  welcome:'選擇股票及快速問題，或自行輸入。可以先試：',
+  w1:'「講解 SIVE」查看完整論點演變', w2:'「AXTI 有甚麼風險？」', w3:'「哪些股票被看好？」', w4:'「比較 LITE 和 AAOI 的交易機會」',
+  aiFine:'AI 答案可能有誤，並非投資建議；行動前請查閱連結的原文。',
+  setTitle:'設定', secAI:'OpenAI 連接', apiKey:'API 金鑰',
+  keyHelp:'只儲存在此裝置的瀏覽器內，並只會傳送到下方的 API 地址。建議在 OpenAI 帳戶設定每月消費上限。',
+  show:'顯示', hide:'隱藏', model:'模型', modelHelp:'任何你的金鑰可用的對話模型，例如 gpt-5、gpt-5-mini、gpt-4.1。',
+  base:'API 基本網址', baseHelp:'使用 OpenAI 請保持不變；只有使用相容代理時才需更改。',
+  test:'測試連接', testing:'測試中…', testOk:'已連接：模型有回應。', removeKey:'移除金鑰',
+  secData:'數據源', feedUrl:'數據源網址（JSON）',
+  feedHelp:'追蹤器的 JSON 匯出。每小時整點（UTC）後 2 分鐘自動重新載入，配合追蹤器的每小時更新。伺服器須允許跨域請求。',
+  auto:'每小時更新', importFile:'匯入 JSON 檔', useDemo:'切換至示範數據', schema:'數據格式',
+  save:'儲存', cancel:'取消', saved:'設定已儲存',
+  loadErr:'未能載入數據源（{e}），仍顯示上次成功載入的數據。',
+  fileErr:'此檔案不是有效的追蹤器匯出（{e}）。', fileOk:'已匯入 {n} 則貼文',
+  disclaimer:'由粉絲製作，整理 @aleabitoreddit（Serenity）公開貼文的研究介面，與 Serenity 無關。觀點標籤由 AI 推斷，可能不準確。本頁內容並非投資建議，請務必查閱原文並自行核實。'
+}};
+Object.assign(I18N.en, {
+  srcarchive:'GitHub archive', srcfeed:'Your feed', srclive:'Live data',
+  archiveLast:'Latest archived post {d}',
+  loadingData:'Loading every post from the GitHub archive (about 9 MB)…',
+  archiveErr:'Couldn’t load the GitHub archive ({e}). Showing demo data instead; try Refresh now.',
+  demoNotice:'You’re looking at demo data: posts and prices are simulated. Switch to real data in Settings.',
+  untagged:'{n} posts from the last 90 days have no stance yet, so the views count them as “no stance”. Tag them with your OpenAI model to fill in bullish, bearish and neutral.',
+  untaggedOld:'{n} older posts are untagged too.',
+  tag90:'Tag last 90 days', tagAll:'Tag all history', tagging:'Tagging stances: {d} of {n} posts', tagDone:'Tagged {n} posts', tagErr:'Tagging stopped: {e}',
+  needKey:'Add your OpenAI API key in Settings first.',
+  noPxLive:'No price data for {t} yet. The GitHub archive has posts only; prices arrive with your own feed (Option 1).',
+  secSources:'Data sources',
+  useArchive:'GitHub archive (yan-labs/serenity-aleabitoreddit)',
+  archiveHelp:'Every post since July 2025, refreshed by the repo’s bot about twice a day. Posts and engagement only: stances come from AI tagging below, prices from your feed.',
+  feedHelp:'Your own pipeline (Option 1). It’s merged on top of the archive and its stances and prices take priority. Reloaded every hour on the hour (UTC) plus 2 minutes; the server must allow cross-origin requests.',
+  secTag:'Stance tagging', autoTag:'Auto-tag new posts with AI after each refresh',
+  tagHelp:'Each post with a $ticker is labelled bull, bear, neutral or none by your OpenAI model. Labels are saved in this browser, so each post is only tagged once.',
+  clearTags:'Clear saved stances', clearedTags:'Saved stances cleared',
+  useDemo:'Use demo data', useReal:'Use real data',
+  tabKB:'Research',
+  kbTitle:'Serenity research library',
+  kbIntro:'Methodology, per-ticker theses, dated calls and article summaries distilled by the yan-labs/serenity-aleabitoreddit repo. Loaded live from GitHub, so it stays current with the repo.',
+  docSkill:'Overview & workflows', docMethod:'Methodology', docTheses:'Per-ticker theses', docTrack:'Track record', docArticles:'X Articles', docAnalyses:'Period analyses',
+  kbSearch:'Search this document, e.g. SIVE or dilution', kbMatches:'{n} of {m} sections',
+  kbLoading:'Loading from GitHub…', kbErr:'Couldn’t load this document ({e}).',
+  viewOnGH:'View on GitHub ↗', translate:'Translate to 繁體中文 with AI', translating:'Translating…', showOriginal:'Show original',
+  tooLong:'This is too long to translate in one go ({n} characters). Search to narrow it to under 15,000 characters first.',
+  kbNote:'Summaries were written by the repo author from public posts; figures are Serenity’s own and unverified. Not affiliated with Serenity.',
+  kbSec:'Research library', kbThesis:'Thesis', kbRecent:'Recent notes', kbTrack:'Dated calls', kbNone:'The research library has no entry for {t} yet.', openKB:'Open in Research',
+  qFrame:'🧩 Framework check',
+  pFrame:'Run Serenity’s chokepoint checklist from the methodology on {t}: supply-chain position, evidence quality, financial conversion, catalysts, dilution and financing risk, and what would invalidate it.',
+  likes:'likes', views:'views', reply:'reply', untaggedLbl:'Untagged'
+});
+Object.assign(I18N.zh, {
+  srcarchive:'GitHub 存檔', srcfeed:'你的數據源', srclive:'真實數據',
+  archiveLast:'存檔最新貼文 {d}',
+  loadingData:'正在從 GitHub 存檔載入全部貼文（約 9 MB）…',
+  archiveErr:'未能載入 GitHub 存檔（{e}），暫時顯示示範數據；請按「立即更新」再試。',
+  demoNotice:'你正在查看示範數據：貼文及股價均為模擬。可在「設定」切換至真實數據。',
+  untagged:'過去 90 日有 {n} 則貼文仍未標註觀點，各檢視會把它們當作「無明確觀點」。用你的 OpenAI 模型標註，即可補上看好、看淡及中性。',
+  untaggedOld:'另有 {n} 則較舊貼文未標註。',
+  tag90:'標註過去 90 日', tagAll:'標註全部歷史', tagging:'正在標註觀點：{d} / {n} 則貼文', tagDone:'已標註 {n} 則貼文', tagErr:'標註已停止：{e}',
+  needKey:'請先在「設定」加入你的 OpenAI API 金鑰。',
+  noPxLive:'{t} 暫時沒有股價數據。GitHub 存檔只有貼文，股價會由你自己的數據源（方案 1）提供。',
+  secSources:'數據來源',
+  useArchive:'GitHub 存檔（yan-labs/serenity-aleabitoreddit）',
+  archiveHelp:'2025 年 7 月以來的所有貼文，由該 repo 的機械人每日約更新兩次。只有貼文及互動數據：觀點由下方的 AI 標註提供，股價由你的數據源提供。',
+  feedHelp:'你自己的數據管道（方案 1）。會疊加在存檔之上，其觀點及股價優先。每小時整點（UTC）後 2 分鐘重新載入；伺服器須允許跨域請求。',
+  secTag:'觀點標註', autoTag:'每次更新後自動用 AI 標註新貼文',
+  tagHelp:'每則含 $代號 的貼文會由你的 OpenAI 模型標註為看好、看淡、中性或無。標註會儲存在此瀏覽器，每則貼文只需標註一次。',
+  clearTags:'清除已儲存的觀點', clearedTags:'已清除儲存的觀點',
+  useDemo:'使用示範數據', useReal:'使用真實數據',
+  tabKB:'研究資料',
+  kbTitle:'Serenity 研究資料庫',
+  kbIntro:'由 yan-labs/serenity-aleabitoreddit 整理的方法論、個股論點、有日期的觀點紀錄及長文摘要。直接從 GitHub 載入，與該 repo 同步更新。內容為英文，可用 AI 翻譯。',
+  docSkill:'總覽及工作流程', docMethod:'方法論', docTheses:'個股論點', docTrack:'觀點紀錄', docArticles:'X 長文', docAnalyses:'分期分析',
+  kbSearch:'搜尋此文件，例如 SIVE 或 dilution', kbMatches:'{m} 段中有 {n} 段符合',
+  kbLoading:'正在從 GitHub 載入…', kbErr:'未能載入此文件（{e}）。',
+  viewOnGH:'在 GitHub 查看 ↗', translate:'用 AI 翻譯成繁體中文', translating:'翻譯中…', showOriginal:'顯示原文',
+  tooLong:'內容太長，未能一次翻譯（{n} 個字元）。請先搜尋，縮減至 15,000 字元以下。',
+  kbNote:'摘要由 repo 作者根據公開貼文整理；數字為 Serenity 本人引述，未經核實。與 Serenity 無關。',
+  kbSec:'研究資料庫', kbThesis:'論點', kbRecent:'近期筆記', kbTrack:'有日期的觀點', kbNone:'研究資料庫暫時沒有 {t} 的條目。', openKB:'在「研究資料」開啟',
+  qFrame:'🧩 框架檢查',
+  pFrame:'用方法論中 Serenity 的瓶頸清單檢查 {t}：供應鏈位置、證據質素、財務轉化、催化劑、攤薄及融資風險，以及論點失效條件。',
+  likes:'讚好', views:'瀏覽', reply:'回覆', untaggedLbl:'未標註'
+});
+Object.assign(I18N.en, { netErr:'can’t reach the AI API. Check your internet connection, turn off any ad blocker or VPN for api.openai.com, make sure Settings → API base URL is https://api.openai.com/v1, and open the file directly in Chrome or Edge. Posts tagged so far are saved; press Tag again to continue' });
+Object.assign(I18N.zh, { netErr:'無法連接 AI API。請檢查網絡連線、為 api.openai.com 關閉廣告攔截器或 VPN、確認「設定 → API 基本網址」為 https://api.openai.com/v1，並直接用 Chrome 或 Edge 開啟檔案。已標註的貼文已儲存，再按標註即可繼續' });
+Object.assign(I18N.en, { exportTags:'Export stances', importTags:'Import stances', exported:'Exported {n} tagged posts to stances_import.json', importedTags:'Imported stances for {n} posts',
+  exportHelp:'Exports the stances tagged in this browser. Upload the file to your serenity-feed repo as feed/stances_import.json and GitHub Actions will merge it into the shared feed, so those posts are never tagged again.' });
+Object.assign(I18N.zh, { exportTags:'匯出觀點', importTags:'匯入觀點', exported:'已將 {n} 則已標註貼文匯出至 stances_import.json', importedTags:'已匯入 {n} 則貼文嘅觀點',
+  exportHelp:'匯出此瀏覽器已標註嘅觀點。將檔案上載到 serenity-feed repo 嘅 feed/stances_import.json，GitHub Actions 會合併入共用數據源，呢啲貼文以後唔會再標註。' });
+const t = (k, v={}) => {
+  let s = (I18N[state.lang] && I18N[state.lang][k]) ?? I18N.en[k] ?? k;
+  for (const [a,b] of Object.entries(v)) s = s.split('{'+a+'}').join(b);
+  return s;
+};
+
+/* ============================================================
+   Demo data (simulated, clearly labelled)
+   ============================================================ */
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function gauss(r){ let u=0,v=0; while(!u) u=r(); while(!v) v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function poisson(l, r){ if (l<=0) return 0; const L=Math.exp(-l); let k=0,p=1; do { k++; p*=r(); } while (p>L && k<40); return k-1; }
+function bridge(n, v0, v1, vol, r){
+  const w=[0]; for (let i=1;i<=n;i++) w.push(w[i-1]+gauss(r)*vol);
+  return w.map((x,i)=> v0 + (v1-v0)*i/(n||1) + x - w[n]*i/(n||1));
+}
+// t ticker, n name, i/iz industry, c currency, f days since first mention, p0/p1 price at first mention / now,
+// m lifetime mentions, x stance mix [bull,bear,neu], h recency heat, v daily vol, z prob of no-stance mention, td today's stances (b/r/n/0)
+const DEMO = [
+ {t:'SIVE',n:'Sivers Semiconductors',i:'AI photonics / CW lasers',iz:'AI 光子／CW 雷射',c:'SEK',f:312,p0:4.18,p1:78.8,m:1400,x:[93,1,6],h:3,v:.045,td:'bbbbbbbbbb0n'},
+ {t:'NBIS',n:'Nebius Group',i:'Neocloud infrastructure',iz:'新雲端基礎設施',f:330,p0:21.4,p1:98.2,m:620,x:[95,1,4],h:1.2,v:.035,td:'bb'},
+ {t:'AAOI',n:'Applied Optoelectronics',i:'Optical modules',iz:'光模組',f:324,p0:36.32,p1:202.89,m:450,x:[88,4,8],h:2.2,v:.045,td:'bbbb0'},
+ {t:'LITE',n:'Lumentum',i:'Optical comms',iz:'光通訊',f:220,p0:193.8,p1:945.08,m:300,x:[90,2,8],h:2,v:.03,td:'b'},
+ {t:'AXTI',n:'AXT Inc',i:'InP substrates',iz:'磷化銦基板',f:313,p0:15.22,p1:105.99,m:280,x:[90,2,8],h:2,v:.045,td:'bb'},
+ {t:'NVDA',n:'NVIDIA',i:'AI chips',iz:'AI 晶片',f:467,p0:171.38,p1:218.66,m:250,x:[15,3,82],h:1.2,v:.022,z:.3,td:'0n000'},
+ {t:'SOI',n:'Soitec',i:'SOI wafers',iz:'SOI 晶圓',c:'EUR',f:244,p0:43.06,p1:146.65,m:200,x:[85,2,13],h:2,v:.035,td:'b0'},
+ {t:'JBL',n:'Jabil',i:'Manufacturing services',iz:'電子製造服務',f:180,p0:140.2,p1:249.5,m:150,x:[90,2,8],h:2,v:.022,td:'bbb'},
+ {t:'MRVL',n:'Marvell Technology',i:'AI semis / CPO',iz:'AI 半導體／CPO',f:432,p0:72.95,p1:316.43,m:120,x:[80,3,17],h:2,v:.03,td:'b0'},
+ {t:'TSEM',n:'Tower Semiconductor',i:'Foundry / silicon photonics',iz:'晶圓代工／矽光子',f:400,p0:45.1,p1:118.4,m:80,x:[85,2,13],h:1.4,v:.028,td:'bn'},
+ {t:'IREN',n:'IREN (Iris Energy)',i:'Bitcoin miner → AI cloud',iz:'比特幣礦企轉 AI 雲端',f:426,p0:18.0,p1:38.2,m:90,x:[5,85,10],e:[85,5,10],ef:.3,h:1.5,v:.05,td:'rr'},
+ {t:'TSM',n:'TSMC',i:'Foundry',iz:'晶圓代工',f:450,p0:190.5,p1:301.2,m:70,x:[35,2,63],h:1,v:.02,z:.2,td:'n0'},
+ {t:'FOCI',n:'FOCI Fiber Optic',i:'Fiber optic components',iz:'光纖元件',c:'TWD',f:225,p0:120,p1:331,m:60,x:[92,0,8],h:2,v:.04,td:'bbb'},
+ {t:'COHR',n:'Coherent',i:'Optical components',iz:'光學元件',f:300,p0:80.4,p1:211.0,m:50,x:[75,5,20],h:1.3,v:.03,td:'b'},
+ {t:'AEHR',n:'Aehr Test Systems',i:'Burn-in testing',iz:'老化測試',f:260,p0:11.1,p1:34.6,m:45,x:[85,3,12],h:1.3,v:.05},
+ {t:'IQE',n:'IQE plc',i:'Compound semiconductors',iz:'化合物半導體',c:'GBX',f:280,p0:19.8,p1:46.5,m:40,x:[85,3,12],h:1.3,v:.05},
+ {t:'RDDT',n:'Reddit',i:'Social / data licensing',iz:'社交平台／數據授權',f:380,p0:140,p1:212,m:40,x:[85,3,12],h:1,v:.035,td:'b'},
+ {t:'CRWV',n:'CoreWeave',i:'Neocloud',iz:'新雲端',f:300,p0:120,p1:96,m:40,x:[5,85,10],e:[60,20,20],ef:.25,h:1.3,v:.05,td:'r'},
+ {t:'META',n:'Meta Platforms',i:'AI platforms',iz:'AI 平台',f:400,p0:590,p1:760,m:30,x:[80,5,15],h:1,v:.02},
+ {t:'RKLB',n:'Rocket Lab',i:'Space',iz:'太空',f:350,p0:22,p1:61,m:25,x:[85,3,12],h:1,v:.045},
+ {t:'CIFR',n:'Cipher Mining',i:'Colocation for AI/HPC',iz:'AI／高效能運算託管',f:260,p0:4.5,p1:14.1,m:25,x:[85,5,10],h:1,v:.05},
+ {t:'HIMS',n:'Hims & Hers',i:'Telehealth',iz:'遙距醫療',f:300,p0:30,p1:58,m:20,x:[80,5,15],h:1,v:.045},
+ {t:'CRCL',n:'Circle Internet',i:'Stablecoins',iz:'穩定幣',f:140,p0:90,p1:118,m:18,x:[35,10,55],h:1,v:.05},
+ {t:'MU',n:'Micron',i:'Memory',iz:'記憶體',f:300,p0:95,p1:160,m:15,x:[40,10,50],h:1,v:.03,td:'0'},
+ {t:'GOOGL',n:'Alphabet',i:'Cloud / AI',iz:'雲端／AI',f:300,p0:165,p1:241,m:14,x:[60,5,35],h:1,v:.02,td:'00'},
+ {t:'PL',n:'Planet Labs',i:'Satellite imagery',iz:'衛星影像',f:200,p0:3.5,p1:9.1,m:12,x:[85,3,12],h:1,v:.05,td:'b'},
+ {t:'AMZN',n:'Amazon',i:'Cloud',iz:'雲端',f:300,p0:185,p1:231,m:10,x:[50,10,40],h:1,v:.02,td:'0'},
+ {t:'INTC',n:'Intel',i:'Foundry',iz:'晶圓代工',f:300,p0:22,p1:31,m:10,x:[25,40,35],h:1,v:.03,td:'n'},
+ {t:'GFS',n:'GlobalFoundries',i:'Foundry',iz:'晶圓代工',f:250,p0:36,p1:48,m:10,x:[40,10,50],h:1,v:.025,td:'0'},
+ {t:'NOK',n:'Nokia',i:'Optical networking',iz:'光網絡',f:200,p0:4.4,p1:6.1,m:9,x:[60,5,35],h:1,v:.02,td:'0'},
+ {t:'XFAB',n:'X-FAB',i:'Specialty foundry',iz:'特殊製程代工',c:'EUR',f:150,p0:5.2,p1:8.9,m:8,x:[70,5,25],h:1,v:.035,td:'0'},
+ {t:'BKKT',n:'Bakkt',i:'Crypto infrastructure',iz:'加密貨幣基建',f:120,p0:12,p1:14.3,m:6,x:[20,70,10],h:1,v:.05,td:'rr'},
+ {t:'SNAP',n:'Snap',i:'Social media',iz:'社交媒體',f:60,p0:8.1,p1:9.4,m:6,x:[90,0,10],h:1,v:.035,td:'r'},
+ {t:'SLNH',n:'Soluna Holdings',i:'Data centres',iz:'數據中心',f:90,p0:3.1,p1:3.0,m:5,x:[20,70,10],h:1,v:.06,td:'r0'},
+ {t:'VISERA',n:'VisEra Technologies',i:'Optical sensors / CPO',iz:'光學感測／CPO',c:'TWD',f:0,p0:300,p1:300,m:0,x:[100,0,0],h:1,v:.03,td:'b'}
+];
+const TPL = {
+ en:{
+  bull:['Reiterates a bullish view on {t}, framing it as a {th} bottleneck play.','Says demand is outrunning supply in {th}; sees {t} as a key beneficiary.','Compares {t}’s valuation with larger peers and calls the gap too wide.','Highlights new customer and capacity signals for {t}.','Stays bullish on {t} but flags execution risk on the capacity ramp.','Positive on {t} while noting customer-concentration risk.'],
+  bear:['Flags financing and dilution concerns at {t}.','Argues {t} is squeezed by debt costs and thin margins.','Turns cautious on {t} after the latest update.'],
+  neu:['Mentions {t} as context for the {th} supply chain without a clear call.','Discusses {t} results without taking a side.'],
+  none:['Mentions {t} in passing.']
+ },
+ zh:{
+  bull:['重申看好 {t}，視之為{th}的瓶頸受惠股。','指出{th}需求遠超供應，認為 {t} 是主要受惠者。','比較 {t} 與大型同業的估值，認為差距過大。','強調 {t} 的新客戶及產能訊號。','繼續看好 {t}，但提到產能爬坡的執行風險。','對 {t} 持正面看法，同時提到客戶集中風險。'],
+  bear:['關注 {t} 的融資及股份攤薄問題。','認為 {t} 受債務成本及微薄利潤率拖累。','在最新消息後對 {t} 轉趨審慎。'],
+  neu:['在討論{th}供應鏈時提及 {t}，未有明確觀點。','討論 {t} 業績，未有表態。'],
+  none:['順帶提及 {t}。']
+ }
+};
+function genDemo(){
+  const now = new Date();
+  const asOf = etDate(now), A = dn(asOf);
+  const r = mulberry32(911 + A);
+  const stocks = {}, posts = [];
+  const pick = arr => arr[Math.floor(r()*arr.length)];
+  const code = ch => ch==='b'?'bull':ch==='r'?'bear':ch==='n'?'neu':null;
+  const drawS = (mix, z) => { if (r() < z) return null; const s = mix[0]+mix[1]+mix[2]; let u = r()*s; if ((u-=mix[0])<0) return 'bull'; if ((u-=mix[1])<0) return 'bear'; return 'neu'; };
+  for (const s of DEMO){
+    const first = A - s.f, span = Math.max(s.f,1);
+    // prices: 30 days before first mention through today, weekdays only
+    const days = [];
+    for (let d=first-30; d<=A; d++){ const wd = new Date(d*864e5).getUTCDay(); if (wd!==0 && wd!==6) days.push(d); }
+    let fi = days.findIndex(d=>d>=first); if (fi<0) fi = days.length-1;
+    const a0 = s.p0*(0.82+r()*0.3);
+    const seg1 = bridge(fi, Math.log(a0), Math.log(s.p0), s.v, r);
+    const seg2 = bridge(days.length-1-fi, Math.log(s.p0), Math.log(s.p1), s.v, r);
+    const series = seg1.concat(seg2.slice(1)).map(Math.exp);
+    stocks[s.t] = { name:s.n, industry:s.i, industry_zh:s.iz, currency:s.c||'USD',
+      prices: days.map((d,i)=>[ds(d), +(series[i]>=1 ? series[i].toFixed(2) : series[i].toFixed(4))]) };
+    const add = (d, j, st) => {
+      const kind = st || 'none';
+      const th = {en:s.i.toLowerCase(), zh:s.iz};
+      const text = {
+        en:'[Demo] ' + pick(TPL.en[kind]).split('{t}').join('$'+s.t).split('{th}').join(th.en),
+        zh:'［示範］' + pick(TPL.zh[kind]).split('{t}').join('$'+s.t).split('{th}').join(th.zh)
+      };
+      const ts = d===A ? new Date(now.getTime() - (j*37+5)*60000).toISOString()
+                       : new Date(Date.UTC(...ds(d).split('-').map((x,i)=>i===1?+x-1:+x), 13 + Math.floor(r()*10), Math.floor(r()*60))).toISOString();
+      posts.push({ id:`${s.t}-${d}-${j}`, date: ds(d), created_at: ts,
+        url:`https://x.com/search?q=${encodeURIComponent('from:'+ACCOUNT+' $'+s.t)}&f=live`,
+        text, mentions:[{ticker:s.t, stance:st}] });
+    };
+    const heat = s.h||1, avgW = (1+heat)/2;
+    for (let d=first; d<A; d++){
+      const age = A-d, w = 1 + (heat-1)*(1-age/span);
+      let k = poisson(s.m/span*w/avgW, r); if (d===first) k = Math.max(k,1); k = Math.min(k,12);
+      for (let j=0;j<k;j++){
+        const early = s.e && (d-first)/span < (s.ef||.3);
+        add(d, j, drawS(early ? s.e : s.x, s.z ?? .12));
+      }
+    }
+    (s.td||'').split('').forEach((ch,j)=> add(A, j, code(ch)));
+  }
+  return { as_of: asOf, updated_at: new Date(Math.floor(now.getTime()/3600000)*3600000).toISOString(), account: ACCOUNT, stocks, posts };
+}
+
+/* ============================================================
+   Normalise any feed into the working model
+   ============================================================ */
+function normS(s){
+  if (s==null || s==='') return null;
+  s = String(s).toLowerCase();
+  if (s.startsWith('bull') || s==='b' || s==='positive' || s==='long') return 'bull';
+  if (s.startsWith('bear') || s==='r' || s==='negative' || s==='short') return 'bear';
+  if (s.startsWith('neu') || s==='n') return 'neu';
+  return null;
+}
+function normalize(raw, src){
+  if (!raw || typeof raw!=='object' || !Array.isArray(raw.posts)) throw new Error('missing "posts" array');
+  const stocks = {};
+  for (const [k,s] of Object.entries(raw.stocks||{})){
+    const T = k.toUpperCase();
+    stocks[T] = { t:T, name:s.name||T, ind:s.industry||'', indZh:s.industry_zh||s.industry||'', ccy:s.currency||'USD',
+      prices:(s.prices||[]).map(p=>Array.isArray(p)?[String(p[0]).slice(0,10),+p[1]]:[String(p.date).slice(0,10),+p.close]).filter(p=>p[0] && isFinite(p[1])).sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0) };
+  }
+  const posts = [];
+  for (const p of raw.posts){
+    const ts = p.created_at || p.ts || null;
+    const date = p.date ? String(p.date).slice(0,10) : (ts ? etDate(new Date(ts)) : null);
+    if (!date) continue;
+    const mentions = (p.mentions||[]).map(m=>({t:String(m.ticker||m.t||'').toUpperCase(), s:normS(m.stance ?? m.s), k: m.k ?? (src==='demo' || m.stance!==undefined && m.stance!==null)})).filter(m=>m.t);
+    if (!mentions.length) continue;
+    for (const m of mentions) if (!stocks[m.t]) stocks[m.t] = {t:m.t,name:m.t,ind:'',indZh:'',ccy:'USD',prices:[]};
+    posts.push({ id:String(p.id||''), url:p.url||'', ts, date, dn:dn(date), text:p.text||'', mentions, metrics:p.metrics||null, reply:!!p.isReply });
+  }
+  posts.sort((a,b)=> a.dn-b.dn || String(a.ts).localeCompare(String(b.ts)));
+  const asOf = raw.as_of ? String(raw.as_of).slice(0,10) : etDate(new Date(raw.updated_at || Date.now()));
+  const by = {};
+  for (const p of posts) for (const m of p.mentions) (by[m.t] ||= []).push({p, s:m.s});
+  const meta = {};
+  for (const T in by) meta[T] = { first: by[T][0].p.dn, latest: by[T][by[T].length-1].p.dn };
+  for (const T in stocks) if (!stocks[T].t) stocks[T].t = T;
+  return { asOf, A:dn(asOf), updatedAt: raw.updated_at || new Date().toISOString(), account: raw.account||ACCOUNT, stocks, posts, by, meta, src };
+}
+
+/* ============================================================
+   GitHub archive (yan-labs/serenity-aleabitoreddit) + merging
+   ============================================================ */
+const GH_REPO = 'yan-labs/serenity-aleabitoreddit';
+const GH_RAW = `https://raw.githubusercontent.com/${GH_REPO}/main/`;
+const GH_BLOB = `https://github.com/${GH_REPO}/blob/main/`;
+const CASHTAG = /\$([A-Za-z][A-Za-z0-9]{0,5})(?![A-Za-z0-9])/g;
+async function fetchJSON(url){
+  const res = await fetch(url, {cache:'no-store'});
+  if (!res.ok) throw new Error(res.status+' '+res.statusText);
+  return res.json();
+}
+function archiveToRaw(arr, sync){
+  const posts = [];
+  for (const x of arr){
+    if (x.isRetweet) continue;
+    const text = String(x.text||'');
+    const tk = [...new Set([...text.matchAll(CASHTAG)].map(m=>m[1].toUpperCase()))];
+    if (!tk.length) continue;
+    const iso = x.createdAtISO || (x.createdAt ? new Date(x.createdAt).toISOString() : null);
+    if (!iso) continue;
+    posts.push({ id:String(x.id), url:`https://x.com/${ACCOUNT}/status/${x.id}`, created_at:iso, text,
+      metrics:x.metrics||null, isReply:!!x.isReply, mentions: tk.map(T=>({ticker:T, stance:null})) });
+  }
+  return { updated_at: sync?.last_update_time || posts.reduce((a,p)=>p.created_at>a?p.created_at:a,''), account:ACCOUNT, stocks:{}, posts };
+}
+async function loadArchive(force){
+  let sync = null;
+  try { sync = await fetchJSON(GH_RAW+'data/sync_state.json'); } catch(e){}
+  if (!force && state.archiveRaw && sync && sync.last_tweet_id===state.archiveId) return false;
+  const arr = await fetchJSON(GH_RAW+'data/aleabitoreddit_tweets.json');
+  if (!Array.isArray(arr)) throw new Error('unexpected archive format');
+  state.archiveRaw = archiveToRaw(arr, sync);
+  state.archiveId = sync?.last_tweet_id || arr[0]?.id || null;
+  state.sync = sync;
+  return true;
+}
+// Names / industries: demo list first (has 繁中 industries), then the research library's thesis headings
+function baseMeta(){
+  const m = {};
+  for (const s of DEMO) m[s.t] = {name:s.n, industry:s.i, industry_zh:s.iz, currency:s.c||'USD'};
+  for (const [T,v] of Object.entries(kbTickerMeta())) if (!m[T]) m[T] = v;
+  return m;
+}
+function buildLive(){
+  const stocks = {};
+  for (const [T,v] of Object.entries(baseMeta())) stocks[T] = {...v, prices:[]};
+  const posts = new Map();
+  let updated = '';
+  for (const [r, fromFeed] of [[state.archiveRaw,false],[state.fileRaw,true],[state.feedRaw,true]]){
+    if (!r) continue;
+    if (r.updated_at && r.updated_at > updated) updated = r.updated_at;
+    for (const [k,s] of Object.entries(r.stocks||{})){
+      const T = k.toUpperCase(), prev = stocks[T]||{};
+      stocks[T] = {...prev, ...s, prices: (s.prices && s.prices.length) ? s.prices : (prev.prices||[])};
+    }
+    for (const p of r.posts||[]){
+      const id = String(p.id||''); if (!id) continue;
+      const mentions = (p.mentions||[]).map(m=>{ const st = m.stance ?? m.s ?? null; return {ticker:String(m.ticker||m.t||'').toUpperCase(), stance:st, k: fromFeed && st!=null}; });
+      const prev = posts.get(id);
+      if (!prev){ posts.set(id, {...p, id, mentions}); continue; }
+      const mm = new Map(prev.mentions.map(m=>[m.ticker,m]));
+      for (const m of mentions){ const o = mm.get(m.ticker); if (!o || m.k) mm.set(m.ticker, m); }
+      posts.set(id, {...prev, ...p, text: String(p.text||'').length >= String(prev.text||'').length ? p.text : prev.text,
+        metrics: p.metrics || prev.metrics, mentions:[...mm.values()]});
+    }
+  }
+  // stance labels: feed's shared labels first (tagged by GitHub Actions), then this browser's own
+  const FS = Object.assign({}, state.fileRaw?.stances || {}, state.feedRaw?.stances || {});
+  for (const p of posts.values()){
+    const f = FS[p.id];
+    if (f) for (const m of p.mentions){ if (!m.k && f[m.ticker]){ m.k = true; m.stance = f[m.ticker]==='none' ? null : f[m.ticker]; } }
+    const c = STC[p.id];
+    for (const m of p.mentions){
+      if (m.k) continue;
+      if (c && c[m.ticker]){ m.k = true; m.stance = c[m.ticker]==='none' ? null : c[m.ticker]; }
+    }
+  }
+  const raw = { as_of: etDate(new Date()), updated_at: updated || new Date().toISOString(), account:ACCOUNT, stocks, posts:[...posts.values()] };
+  return normalize(raw, 'live');
+}
+function untaggedPosts(days){
+  const d = D(); if (!d || state.source!=='live') return [];
+  const from = days ? d.A-days+1 : -Infinity;
+  return d.posts.filter(p=>p.dn>=from && p.mentions.some(m=>!m.k));
+}
+
+/* ============================================================
+   AI stance tagging (OpenAI, batched, cached per post)
+   ============================================================ */
+const TAG_SYS = [
+  'You label stock stances in X posts written by @aleabitoreddit (Serenity), an AI and semiconductor supply-chain investor.',
+  'For each post and each listed ticker, judge the AUTHOR\'S OWN stance toward that stock as expressed in that post:',
+  'bull = positive, buying, holding with conviction, or arguing the thesis is strengthening;',
+  'bear = negative, selling, shorting, warning about dilution, financing, fraud or weak fundamentals;',
+  'neu = discussed substantively but balanced or without a directional view;',
+  'none = only mentioned in passing, in a list, as context, a joke, or quoting someone else without endorsement.',
+  'Return JSON only, in this shape: {"r":[{"i":"<post id>","s":{"TICKER":"bull|bear|neu|none"}}]}. Include every post and every listed ticker.'
+].join('\n');
+async function tagStances(days){
+  if (state.tag) return;
+  if (!cfg().key){ toast(t('needKey')); openSettings(); return; }
+  const todo = untaggedPosts(days);
+  if (!todo.length) return;
+  const abort = new AbortController();
+  state.tag = {done:0, total:todo.length, abort};
+  renderBanner();
+  const batches = [];
+  for (let i=0;i<todo.length;i+=20) batches.push(todo.slice(i,i+20));
+  let err = null, idx = 0, fails = 0;
+  const worker = async () => {
+    while (idx < batches.length && !abort.signal.aborted && !err){
+      const b = batches[idx++];
+      const user = b.map(p=>`id: ${p.id}\ntickers: ${p.mentions.filter(m=>!m.k).map(m=>m.t).join(', ')}\ntext: ${postText(p).replace(/\s+/g,' ').slice(0,1500)}`).join('\n---\n');
+      // retry each batch up to 3 times (network blips, rate limits, slow responses)
+      let ok = false, last = null;
+      for (let attempt=0; attempt<3 && !ok && !abort.signal.aborted && !err; attempt++){
+        try {
+          let txt = '';
+          await callOpenAI([{role:'system',content:TAG_SYS},{role:'user',content:user}], s=>{ txt=s; }, abort.signal, false, {response_format:{type:'json_object'}});
+          const j = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}')+1));
+          for (const r of j.r||j.results||[]){
+            const id = String(r.i ?? r.id ?? ''); if (!id || !r.s) continue;
+            const o = STC[id] || {};
+            for (const [T,v] of Object.entries(r.s)){ const s = normS(v); o[String(T).toUpperCase().replace(/^\$/,'')] = s || 'none'; }
+            STC[id] = o;
+          }
+          saveSTC(); ok = true; fails = 0;
+        } catch(e){
+          if (e.name==='AbortError') break;
+          last = e;
+          if (/incorrect api key|invalid_api_key|401|quota|billing|insufficient/i.test(e.message)){ err = e; break; }   // retrying won't help
+          await new Promise(r=>setTimeout(r, (/rate|429/i.test(e.message) ? 15000 : 3000) * (attempt+1)));
+        }
+      }
+      if (!ok && last && !err && ++fails >= 3) err = last;   // stop only after 3 batches in a row fail
+      state.tag.done = Math.min(state.tag.total, state.tag.done + b.length);
+      renderBanner();
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+  const n = state.tag.done;
+  state.tag = null;
+  state.D = buildLive(); renderAll();
+  toast(err ? t('tagErr',{e:friendlyErr(err)}) : t('tagDone',{n}));
+}
+
+/* ============================================================
+   Research library (yan-labs markdown docs, fetched live)
+   ============================================================ */
+const KB_DOCS = {
+  skill:'serenity-aleabitoreddit/SKILL.md',
+  method:'serenity-aleabitoreddit/references/methodology.md',
+  theses:'serenity-aleabitoreddit/references/theses.md',
+  track:'serenity-aleabitoreddit/references/track-record.md',
+  articles:'serenity-aleabitoreddit/references/articles.md'
+};
+const KB_ANALYSES_FALLBACK = ['2025-07_to_09.md','2025-10_to_11.md','2025-12_to_2026-01.md','2026-02.md','2026-03.md','2026-04_to_05.md','2026-09_to_10.md'];
+const kbPending = {};
+function kbPath(key){ return key.startsWith('analysis:') ? 'serenity-aleabitoreddit/analysis/'+key.slice(9) : KB_DOCS[key]; }
+async function kbLoad(key){
+  if (state.kb.docs[key]) return state.kb.docs[key];
+  if (!kbPending[key]) kbPending[key] = (async ()=>{
+    const res = await fetch(GH_RAW+kbPath(key), {cache:'no-store'});
+    if (!res.ok) throw new Error(res.status+' '+res.statusText);
+    let txt = await res.text();
+    txt = txt.replace(/^---\n[\s\S]*?\n---\n/, ''); // drop front matter
+    state.kb.docs[key] = txt; return txt;
+  })().finally(()=>{ delete kbPending[key]; });
+  return kbPending[key];
+}
+async function kbAnalyses(){
+  if (state.kb.analyses) return state.kb.analyses;
+  try {
+    const j = await fetchJSON(`https://api.github.com/repos/${GH_REPO}/contents/serenity-aleabitoreddit/analysis`);
+    state.kb.analyses = j.filter(x=>x.name.endsWith('.md')).map(x=>x.name).sort();
+  } catch(e){ state.kb.analyses = KB_ANALYSES_FALLBACK; }
+  return state.kb.analyses;
+}
+function kbSections(md){
+  const out = []; let cur = {level:0, title:'', body:[]};
+  let fence = false;
+  for (const ln of md.split('\n')){
+    if (/^```/.test(ln)) fence = !fence;
+    const m = !fence && ln.match(/^(#{1,3})\s+(.*)$/);
+    if (m){ if (cur.title || cur.body.join('').trim()) out.push(cur); cur = {level:m[1].length, title:m[2].trim(), body:[]}; }
+    else cur.body.push(ln);
+  }
+  out.push(cur);
+  return out.map(s=>({...s, text:(s.title?'#'.repeat(s.level)+' '+s.title+'\n':'')+s.body.join('\n')}));
+}
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function kbTickerMeta(){
+  const md = state.kb.docs.theses; if (!md) return {};
+  if (state.kb.metaCache && state.kb.metaCache.src===md) return state.kb.metaCache.m;
+  const sectors = new Set([...md.matchAll(/^- \[([^\]]+)\]\(#/gm)].map(x=>x[1].trim()));
+  const m = {}; let sector = '';
+  for (const s of kbSections(md)){
+    if (s.level===2 && sectors.has(s.title)) { sector = s.title; continue; }
+    const h = s.title.match(/^\$?([A-Z][A-Z0-9.]{0,9})((?:\s*\/\s*\$?[A-Z0-9.]+)*)\s*(?:\(([^)]+)\))?\s*[—–-]\s*(.+)$/);
+    if (!h) continue;
+    const T = h[1];
+    if (s.level===3){
+      const name = h[3] && !/listed/i.test(h[3]) ? h[3] : (m[T]?.name || T);
+      m[T] = {name, industry: h[4], industry_zh: h[4]};
+    } else if (!h[2] && !m[T]){
+      const name = h[3] && !/listed/i.test(h[3]) ? h[3] : h[4];
+      m[T] = {name, industry: sector, industry_zh: sector};
+    }
+  }
+  state.kb.metaCache = {src:md, m};
+  return m;
+}
+function kbFor(T){
+  const out = {thesis:'', recent:[], track:''};
+  const md = state.kb.docs.theses;
+  if (md){
+    const head = new RegExp(`(^|[\\s$/(])${reEsc(T)}(?=[\\s/),—–:-]|$)`);
+    const parts = kbSections(md).filter(s=>s.level>=2 && head.test(s.title.split('(')[0]) && !/^Recent incremental/i.test(s.title));
+    out.thesis = parts.map(s=>s.text.trim()).join('\n\n');
+    const rec = kbSections(md).find(s=>/^Recent incremental/i.test(s.title));
+    if (rec){
+      const tag = new RegExp(`\\$${reEsc(T)}(?![A-Za-z0-9])`);
+      out.recent = rec.body.join('\n').split(/\n(?=- )/).filter(b=>b.startsWith('- ') && tag.test(b));
+    }
+  }
+  const tr = state.kb.docs.track;
+  if (tr){
+    const tag = new RegExp(`\\$${reEsc(T)}(?![A-Za-z0-9])`);
+    const lines = tr.split('\n');
+    const header = lines.find(l=>/^\|\s*Date\s*\|/.test(l));
+    const rows = lines.filter(l=>/^\|\s*\d{4}-\d{2}-\d{2}/.test(l) && tag.test(l)).slice(0,15);
+    if (header && rows.length){ const cols = header.split('|').length-2; out.track = [header, '|'+' --- |'.repeat(cols), ...rows].join('\n'); }
+  }
+  return out;
+}
+const tCache = {};
+function hashStr(s){ let h=5381; for (let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(36)+'_'+s.length; }
+async function aiTranslate(text, onDelta, signal){
+  const k = hashStr(text);
+  if (tCache[k]){ onDelta(tCache[k]); return tCache[k]; }
+  const out = await callOpenAI([
+    {role:'system', content:'Translate the user\'s markdown into Traditional Chinese (繁體中文, Hong Kong usage). Keep the markdown structure, tickers ($XXX), numbers, URLs and code unchanged. Output only the translation.'},
+    {role:'user', content:text}], onDelta, signal);
+  tCache[k] = out; return out;
+}
+/* ============================================================
+   Analytics
+   ============================================================ */
+const D = () => state.D;
+const postText = p => typeof p.text==='object' && p.text ? (p.text[state.lang] || p.text.en || Object.values(p.text)[0] || '') : String(p.text||'');
+const indOf = T => { const s = D().stocks[T]; return s ? (state.lang==='zh' ? (s.indZh||s.ind) : s.ind) : ''; };
+function count(T, from, to){
+  const c = {m:0,b:0,r:0,n:0,x:0};
+  for (const e of D().by[T]||[]){ const d=e.p.dn; if (d<from || d>to) continue; c.m++; if (e.s==='bull') c.b++; else if (e.s==='bear') c.r++; else if (e.s==='neu') c.n++; else c.x++; }
+  return c;
+}
+const stanceOf = c => (!c.b && !c.r && !c.n) ? 'none' : c.b>c.r ? 'bull' : c.r>c.b ? 'bear' : 'neu';
+function priorDirectional(T, before){
+  const arr = D().by[T]||[]; for (let i=arr.length-1;i>=0;i--){ const e=arr[i]; if (e.p.dn<before && (e.s==='bull'||e.s==='bear')) return e.s; } return null;
+}
+function lastExplicit(T){ const arr = D().by[T]||[]; for (let i=arr.length-1;i>=0;i--) if (arr[i].s) return arr[i]; return null; }
+function pricesUpTo(T){ const P = D().stocks[T]?.prices||[]; const a = D().asOf; return P.filter(p=>p[0]<=a); }
+function priceOn(T, date){ const P = D().stocks[T]?.prices||[]; if (!P.length) return null; let v=null; for (const p of P){ if (p[0]<=date) v=p[1]; else break; } return v ?? P[0][1]; }
+function pxInfo(T){
+  const P = pricesUpTo(T); if (!P.length || !D().meta[T]) return null;
+  const last = P[P.length-1][1], prev = P.length>1 ? P[P.length-2][1] : null;
+  const firstD = ds(D().meta[T].first);
+  const p0 = priceOn(T, firstD);
+  const since = P.filter(p=>p[0]>=firstD); const ser = since.length ? since : [P[P.length-1]];
+  const hi = Math.max(...ser.map(p=>p[1])), lo = Math.min(...ser.map(p=>p[1]));
+  const p30 = priceOn(T, ds(D().A-30));
+  return { last, lastDate:P[P.length-1][0], d1: prev ? pct(last/prev-1) : null, gain: p0 ? pct(last/p0-1) : null, p0, hi, lo, dd: pct(last/hi-1), d30: p30 ? pct(last/p30-1) : null };
+}
+function rowsFor(days){
+  const A = D().A, from = A-days+1, out=[];
+  for (const T in D().by){
+    const c = count(T, from, A); if (!c.m) continue;
+    const st = stanceOf(c), prior = priorDirectional(T, from);
+    const px = pxInfo(T);
+    out.push({ T, ...c, stance:st, prior,
+      shift: !!(prior && (st==='bull'||st==='bear') && prior!==st),
+      m1:count(T,A,A).m, m7:count(T,A-6,A).m, m28:count(T,A-27,A).m, m90:count(T,A-89,A).m,
+      first:D().meta[T].first, latest:D().meta[T].latest, isNew: D().meta[T].first>=from,
+      gain: px?.gain ?? null, d1: px?.d1 ?? null });
+  }
+  return out.sort((a,b)=> b.m-a.m || b.m28-a.m28 || a.T.localeCompare(b.T));
+}
+
+/* ============================================================
+   Shared UI pieces
+   ============================================================ */
+const STANCE_KEY = {bull:'bullish', bear:'bearish', neu:'neutral', none:'nostance'};
+const ICON = {bull:'▲', bear:'▼', neu:'●', none:'○'};
+const pill = (st, days, extra='') => `<span class="pill ${st}">${ICON[st]} ${t(STANCE_KEY[st])}${days? ' '+t('sfx'+days):''}${extra}</span>`;
+const ccyTag = T => { const c = D().stocks[T]?.ccy; return c && c!=='USD' ? `<span class="ccy">${esc(c)}</span>` : ''; };
+const delta = (x, label) => x==null ? '' : `${label?`<span class="lbl">${esc(label)}</span> `:''}<span class="delta ${dCls(x)}">${x==null?'n/a':fmtPct(x)}</span>`;
+const stanceCounts = (r, days) => `<div class="srow">${t('stance')} ${t('sfx'+days)} <span class="c-bull">${r.b}</span> ${t('bullW')} <span class="c-bear">${r.r}</span> ${t('bearW')} <span class="c-neu">${r.n}</span> ${t('neuW')}</div>`;
+function windowLabel(days){
+  const A = D().A; if (days===1) return `${D().asOf} ET`;
+  return `${ds(A-days+1)} ~ ${ds(A).slice(5)} ET`;
+}
+function vhead(titleKey, days, rows){
+  const sumKey = {1:'sumDaily',7:'sumWeekly',28:'sumMonthly',90:'sumQuarterly'}[days];
+  const m = rows.reduce((s,r)=>s+r.m,0);
+  return `<div class="vhead"><h2>${t(titleKey)}</h2><span class="datebadge">${windowLabel(days)}</span></div>
+          <div class="vmeta">${t(sumKey,{n:rows.length,m})}</div>`;
+}
+const sec = (title, hint, body, open=true) => `<details class="sec"${open?' open':''}><summary><h3>${title}</h3>${hint?`<span class="hint">${hint}</span>`:''}</summary>${body}</details>`;
+const chips = (rows, cls='', key='m') => `<div class="chips">${rows.map(r=>`<button type="button" class="chip ${cls}" data-detail="${esc(r.T)}">${esc(r.T)}<span>${r[key]}</span></button>`).join('')}</div>`;
+
+function card(r, days){
+  const S = D().stocks[r.T];
+  const head = days===1 ? delta(r.d1, t('vsPrior')) : delta(r.gain, t('since'));
+  const mk = {1:'mToday',7:'mWeek',28:'mMonth'}[days];
+  const subs = days===1 ? `· ${t('d7')} <b>${r.m7}</b> · ${t('d28')} <b>${r.m28}</b>` : `· ${t('d28')} <b>${r.m28}</b> · ${t('d90')} <b>${r.m90}</b>`;
+  return `<button type="button" class="card ${r.stance}" data-detail="${esc(r.T)}">
+    <div class="hd"><span class="tk">${esc(r.T)}</span>${ccyTag(r.T)}${head}${pill(r.stance, days)}</div>
+    <div class="nm">${esc(S.name!==r.T?S.name:'')}${S.name!==r.T && indOf(r.T)?' · ':''}${esc(indOf(r.T))}</div>
+    <div class="mrow"><span class="lbl">${t(mk)}</span><span class="big">${r.m}</span><span class="sub">${subs}</span></div>
+    ${stanceCounts(r, days)}
+    <div class="ft"><span>${t('first',{d:ds(r.first)})}${days>1?' · '+t('latest',{d:ds(r.latest)}):''}</span><span class="go">${t('details')}</span></div>
+  </button>`;
+}
+function notableRow(r, days){
+  const S = D().stocks[r.T];
+  const shiftPill = r.shift ? `<span class="pill shift">⇄ ${t('shiftTo',{a:t(STANCE_KEY[r.prior]),b:t(STANCE_KEY[r.stance])})}</span>` : '';
+  return `<button type="button" class="row ${r.shift?'shift':''}" data-detail="${esc(r.T)}">
+    <div class="r1"><span class="tk" style="font-size:16px">${esc(r.T)}</span>${ccyTag(r.T)}<span class="nm">${esc(S.name!==r.T?S.name:indOf(r.T))}</span>${days===1?delta(r.d1):delta(r.gain)}</div>
+    <div class="r2">${pill(r.stance, days, ` (${r.stance==='bear'?r.r:r.b})`)}${shiftPill}</div>
+    <div class="r3">${t('d1')} ${r.m1} · ${t('d7')} ${r.m7} · ${t('d28')} ${r.m28}</div>
+    <div class="r4">${t('details')}</div>
+  </button>`;
+}
+
+/* ============================================================
+   Views
+   ============================================================ */
+function viewPulse(days){
+  const rows = rowsFor(days);
+  const isNotable = r => r.stance==='bear' || r.shift;
+  const notable = rows.filter(isNotable);
+  const rest = rows.filter(r=>!isNotable(r));
+  const [maxTop, minM, keep] = days===1 ? [6,3,3] : [8,10,4];
+  const top = rest.filter((r,i)=> i<keep || r.m>=minM).slice(0,maxTop);
+  const topSet = new Set(top.map(r=>r.T));
+  const fresh = rows.filter(r=>r.isNew && !topSet.has(r.T));
+  const freshSet = new Set(fresh.map(r=>r.T));
+  const others = rest.filter(r=>!topSet.has(r.T) && !freshSet.has(r.T));
+  const titleKey = days===1 ? 'tabDaily' : 'tabWeekly';
+  return vhead(titleKey, days, rows)
+    + sec(t('most'+days), t('mostHint'), top.length ? `<div class="grid">${top.map(r=>card(r,days)).join('')}</div>` : `<div class="empty">—</div>`)
+    + sec(t('notable'+days), '', notable.length ? `<div class="rows">${notable.map(r=>notableRow(r,days)).join('')}</div>` : `<div class="empty">${t('noNotable')}</div>`)
+    + sec(t('new'+days), '', fresh.length ? `<div class="empty"><div>${t('newCount',{n:fresh.length})}</div>${chips(fresh,'new')}</div>` : `<div class="empty">${t('noNew')}</div>`)
+    + (others.length ? sec(t('other'), '', `<div class="empty"><div>${t('otherCount',{n:others.length})}</div>${chips(others)}</div>`) : '');
+}
+function viewMonthly(){
+  const rows = rowsFor(28);
+  const top = rows.slice(0,20), topSet = new Set(top.map(r=>r.T));
+  const fresh = rows.filter(r=>r.isNew && !topSet.has(r.T));
+  const others = rows.filter(r=>!topSet.has(r.T) && !r.isNew);
+  const li = (r,i) => {
+    const tot = Math.max(r.b+r.r+r.n,1);
+    const nm = D().stocks[r.T].name;
+    return `<li data-detail="${esc(r.T)}" tabindex="0" role="button">
+      <span class="rk">${i+1}</span>
+      <span><span class="tk" style="font-size:16px">${esc(r.T)}</span> ${ccyTag(r.T)} <span class="nm">${esc(nm!==r.T?nm:'')}</span></span>
+      <span>${delta(r.gain, t('since'))}</span>
+      <div class="mix" title="${r.b} / ${r.r} / ${r.n}"><i class="b" style="width:${r.b/tot*100}%"></i><i class="r" style="width:${r.r/tot*100}%"></i><i class="n" style="width:${r.n/tot*100}%"></i></div>
+      <div class="rk-meta"><span><b>${r.m}</b> ${t('thisMonth')}</span><span><span class="c-bull">${r.b}</span> ${t('bullW')} · <span class="c-bear">${r.r}</span> ${t('bearW')} · ${r.n} ${t('neuW')}</span></div>
+    </li>`;
+  };
+  return vhead('tabMonthly', 28, rows)
+    + sec(t('most28'), t('mostHint'), `<ol class="rank">${top.map(li).join('')}</ol>`)
+    + sec(t('new28'), '', fresh.length ? `<div class="empty"><div>${t('newCount',{n:fresh.length})}</div>${chips(fresh,'new')}</div>` : `<div class="empty">${t('noNew')}</div>`)
+    + (others.length ? sec(t('other'), '', `<div class="empty"><div>${t('otherCount',{n:others.length})}</div>${chips(others)}</div>`) : '');
+}
+function viewQuarterly(){
+  const rows = rowsFor(90);
+  const ws = rows.filter(r=>r.b+r.r+r.n>0);
+  const nb = ws.filter(r=>r.b>r.r).length, nr = ws.filter(r=>r.r>r.b).length, bal = ws.length-nb-nr;
+  const bearOnly = ws.filter(r=>r.r>0 && r.b===0).length;
+  const tb = rows.reduce((s,r)=>s+r.b,0), tr = rows.reduce((s,r)=>s+r.r,0), tn = rows.reduce((s,r)=>s+r.n,0);
+  const P = x => ws.length ? Math.round(x/ws.length*100) : 0;
+  const box = `<div class="qbox">
+    <div class="qnums">
+      <div><span class="big" style="color:var(--bull)">${nb}</span><span class="lbl">${t('netBull')}</span></div>
+      <div><span class="big" style="color:var(--bear)">${nr}</span><span class="lbl">${t('netBear')}</span></div>
+      <div><span class="big">${bal}</span><span class="lbl">${t('balanced')}</span></div>
+      <div><span class="big">${ws.length}</span><span class="lbl">${t('withStance')}</span></div>
+    </div>
+    <div class="qbar" aria-hidden="true"><i style="width:${P(nb)}%;background:var(--bull)"></i><i style="width:${P(bal)}%;background:var(--neu);opacity:.6"></i><i style="width:${P(nr)}%;background:var(--bear)"></i></div>
+    <p class="qtext">${t('qText',{b:P(nb),r:P(nr),x:bearOnly,tb,tr,tn})}</p>
+    <p class="fine">${t('method')}</p>
+  </div>`;
+  const table = `<div class="tbar">
+      <input type="search" id="qSearch" placeholder="${esc(t('filter'))}" value="${esc(state.q)}" aria-label="${esc(t('filter'))}">
+      <label><input type="checkbox" id="only3" ${state.only3?'checked':''}> ${t('only3')}</label>
+    </div>
+    <div class="tablewrap"><table><thead><tr>${[
+      ['T','thTicker'],['ind','thInd'],['first','thFirst'],['latest','thLatest'],['gain','thGain',1],['m','thM',1],['b','thB',1],['r','thR',1],['n','thN',1]
+    ].map(([k,l,num])=>`<th class="${num?'num':''}" aria-sort="${state.sort.key===k?(state.sort.dir<0?'descending':'ascending'):'none'}"><button type="button" data-sort="${k}">${t(l)}</button></th>`).join('')}</tr></thead><tbody id="qBody"></tbody></table></div>`;
+  return vhead('tabQuarterly', 90, rows)
+    + sec(t('qDir'), t('qDirHint'), box)
+    + sec(t('allNames'), t('allHint'), table);
+}
+function fillTable(){
+  const body = $('#qBody'); if (!body) return;
+  const q = state.q.trim().toLowerCase();
+  let rows = rowsFor(90).filter(r=> !state.only3 || r.m>=3);
+  if (q) rows = rows.filter(r=>{ const s=D().stocks[r.T]; return (r.T+' '+s.name+' '+s.ind+' '+s.indZh).toLowerCase().includes(q); });
+  const {key, dir} = state.sort;
+  const val = r => key==='ind' ? indOf(r.T) : key==='T' ? r.T : r[key];
+  rows.sort((a,b)=>{ const x=val(a), y=val(b); if (x==null) return 1; if (y==null) return -1; return (typeof x==='string' ? x.localeCompare(y) : x-y)*dir; });
+  if (!rows.length){ body.innerHTML = `<tr><td colspan="9" style="color:var(--ink-3)">${t('noRows')}</td></tr>`; return; }
+  body.innerHTML = rows.map(r=>{
+    const P = D().stocks[r.T].prices, ccy = D().stocks[r.T].ccy;
+    const pf = priceOn(r.T, ds(r.first)), pl = pricesUpTo(r.T).at(-1)?.[1];
+    const tag = ccy!=='USD' ? ccy+' ' : '';
+    return `<tr data-detail="${esc(r.T)}" tabindex="0">
+      <td><b>${esc(r.T)}</b> ${ccyTag(r.T)}</td><td>${esc(indOf(r.T)) || '—'}</td>
+      <td>${ds(r.first)}${P.length?`<small>${tag}${fmtPx(pf)}</small>`:''}</td>
+      <td>${ds(r.latest)}${P.length?`<small>${tag}${fmtPx(pl)}</small>`:''}</td>
+      <td class="num"><span class="delta ${dCls(r.gain)}">${r.gain==null?'—':fmtPct(r.gain)}</span></td>
+      <td class="num">${r.m}</td><td class="num c-bull">${r.b}</td><td class="num c-bear">${r.r}</td><td class="num">${r.n}</td></tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   Stock detail drawer
+   ============================================================ */
+function chartSVG(T){
+  const all = pricesUpTo(T); const m = D().meta[T];
+  const noPx = `<div class="empty">${state.source==='live' ? t('noPxLive',{t:esc(T)}) : t('noPx')}</div>`;
+  if (all.length<2 || !m) return noPx;
+  const firstD = ds(m.first);
+  let si = all.findIndex(p=>p[0]>=firstD); if (si<0) si = all.length-1;
+  const P = all.slice(Math.max(0, si-5));
+  if (P.length<2) return noPx;
+  const W=700, H=260, L=48, R=12, Tp=14, B=30;
+  const vals = P.map(p=>p[1]); let lo=Math.min(...vals), hi=Math.max(...vals);
+  const useLog = hi/lo > 4;
+  const f = useLog ? Math.log : (v=>v);
+  const y0=f(lo), y1=f(hi), pad=(y1-y0)*.06 || 1;
+  const X = i => L + i/(P.length-1)*(W-L-R);
+  const Y = v => Tp + (1-(f(v)-(y0-pad))/((y1+pad)-(y0-pad)))*(H-Tp-B);
+  const line = P.map((p,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+  const area = `${line}L${X(P.length-1).toFixed(1)},${H-B}L${L},${H-B}Z`;
+  // markers per day
+  const idxOf = date => { let k=0; for (let i=0;i<P.length;i++){ if (P[i][0]<=date) k=i; else break; } return k; };
+  const byDay = {};
+  for (const e of D().by[T]){ if (!e.s) continue; const k = idxOf(e.p.date); if (e.p.date < P[0][0]) continue; (byDay[k] ||= {bull:0,bear:0,neu:0})[e.s]++; }
+  const color = {bull:'var(--bull)',bear:'var(--bear)',neu:'var(--neu)'};
+  const marks = Object.entries(byDay).map(([k,c])=>{
+    const tot=c.bull+c.bear+c.neu, st = c.bear>c.bull ? 'bear' : c.bull>0 ? 'bull' : 'neu';
+    return `<circle cx="${X(+k).toFixed(1)}" cy="${Y(P[k][1]).toFixed(1)}" r="${(3+Math.min(4,Math.sqrt(tot)-1)).toFixed(1)}" fill="${color[st]}" stroke="var(--surface)" stroke-width="1.2" opacity=".9"/>`;
+  }).join('');
+  const ticks = [lo, useLog ? Math.exp((f(lo)+f(hi))/2) : (lo+hi)/2, hi];
+  const yt = ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${L-6}" y="${(Y(v)+4).toFixed(1)}" text-anchor="end" font-size="11" fill="var(--ink-3)">${fmtPx(v)}</text>`).join('');
+  const xi = [0, Math.floor((P.length-1)/2), P.length-1];
+  const xt = xi.map((i,j)=>`<text x="${X(i).toFixed(1)}" y="${H-10}" text-anchor="${j===0?'start':j===2?'end':'middle'}" font-size="11" fill="var(--ink-3)">${P[i][0]}</text>`).join('');
+  const fx = X(Math.max(0, idxOf(firstD)));
+  return `<div class="chart">
+    <svg viewBox="0 0 ${W} ${H}" id="pxsvg" role="img" aria-label="${esc(t('priceSince'))}" data-n="${P.length}" data-l="${L}" data-r="${R}" data-w="${W}">
+      ${yt}${xt}
+      <line x1="${fx}" x2="${fx}" y1="${Tp}" y2="${H-B}" stroke="var(--ink-3)" stroke-dasharray="2 3"/>
+      <path d="${area}" fill="var(--accent)" opacity=".08"/>
+      <path d="${line}" fill="none" stroke="var(--ink)" stroke-width="1.6" stroke-linejoin="round"/>
+      ${marks}
+      <g id="hov" style="display:none"><line id="hovL" y1="${Tp}" y2="${H-B}" stroke="var(--ink-2)"/><rect id="hovB" rx="5" height="22" fill="var(--ink)"/><text id="hovT" font-size="11.5" fill="var(--paper)" font-weight="600"></text></g>
+      <rect x="${L}" y="${Tp}" width="${W-L-R}" height="${H-Tp-B}" fill="transparent" id="hovArea"/>
+    </svg>
+    <div class="legend"><span><i style="background:var(--bull)"></i>${t('legBull')}</span><span><i style="background:var(--bear)"></i>${t('legBear')}</span><span><i style="background:var(--neu)"></i>${t('legNeu')}</span>${useLog?`<span>${t('logScale')}</span>`:''}${state.source==='demo'?`<span>${t('demoPx')}</span>`:''}</div>
+  </div>`;
+}
+function bindChart(T){
+  const svg = $('#pxsvg'); if (!svg) return;
+  const all = pricesUpTo(T), firstD = ds(D().meta[T].first);
+  let si = all.findIndex(p=>p[0]>=firstD); if (si<0) si=all.length-1;
+  const P = all.slice(Math.max(0, si-5));
+  const n=+svg.dataset.n, L=+svg.dataset.l, R=+svg.dataset.r, W=+svg.dataset.w;
+  const g=$('#hov',svg), ln=$('#hovL',svg), bx=$('#hovB',svg), tx=$('#hovT',svg);
+  const ccy = D().stocks[T].ccy;
+  const move = ev => {
+    const pt = svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+    const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const i = Math.max(0, Math.min(n-1, Math.round((p.x-L)/(W-L-R)*(n-1))));
+    const x = L + i/(n-1)*(W-L-R);
+    g.style.display=''; ln.setAttribute('x1',x); ln.setAttribute('x2',x);
+    tx.textContent = `${P[i][0]}  ${ccy} ${fmtPx(P[i][1])}`;
+    const w = tx.getComputedTextLength()+14; const bxX = Math.min(Math.max(x-w/2, L), W-R-w);
+    bx.setAttribute('x',bxX); bx.setAttribute('y',2); bx.setAttribute('width',w);
+    tx.setAttribute('x',bxX+7); tx.setAttribute('y',17);
+  };
+  svg.addEventListener('pointermove', move);
+  svg.addEventListener('pointerdown', move);
+  svg.addEventListener('pointerleave', ()=> g.style.display='none');
+}
+function openDetail(T, showAll=false){
+  if (!D().stocks[T] || !D().by[T]) return;
+  state.detail = T;
+  const S = D().stocks[T], A = D().A, m = D().meta[T];
+  const px = pxInfo(T), le = lastExplicit(T);
+  const hist = D().by[T].slice().reverse();
+  const shown = showAll ? hist : hist.slice(0,60);
+  const c = (a,b)=>count(T,a,b).m;
+  const dr = $('#drawer');
+  dr.innerHTML = `
+    <div class="dhead">
+      <h2>${esc(T)}</h2>${ccyTag(T)}
+      <span class="nm">${esc(S.name!==T?S.name:'')}${indOf(T)?' · '+esc(indOf(T)):''}</span>
+      <button type="button" class="btn close" id="dClose">${t('close')}</button>
+    </div>
+    <div class="dbody">
+      <div class="stats">
+        <div class="stat"><span class="lbl">${t('latestStance')}</span>${le?pill(le.s):pill('none')}<div class="lbl" style="margin-top:4px">${le?le.p.date:''}</div></div>
+        <div class="stat"><span class="lbl">${t('lastPx')}</span><b>${px?esc(S.ccy)+' '+fmtPx(px.last):'—'}</b><div>${px?delta(px.d1):''}</div></div>
+        <div class="stat"><span class="lbl">${t('gainFirst')}</span><b class="${px&&px.gain!=null?(px.gain>=0?'c-bull':'c-bear'):''}">${px?fmtPct(px.gain):'—'}</b></div>
+        <div class="stat"><span class="lbl">${t('firstLbl')}</span><b style="font-size:15px">${ds(m.first)}</b><div class="lbl">${t('latestLbl')} ${ds(m.latest)}</div></div>
+      </div>
+      <div class="stats" style="margin-top:8px">
+        ${[['d1',c(A,A)],['d7',c(A-6,A)],['d28',c(A-27,A)],['d90',c(A-89,A)],['all',D().by[T].length]].map(([k,v])=>`<div class="stat"><span class="lbl">${t('mentions')} · ${t(k)}</span><b>${v}</b></div>`).join('')}
+      </div>
+      <div style="margin-top:14px"><button type="button" class="btn primary" id="dAsk">🤖 ${t('askAI',{t:T})}</button></div>
+      <h4 class="dsec">📚 ${t('kbSec')}</h4>
+      <div id="dKB" class="kbbox"><span class="lbl">${t('kbLoading')}</span></div>
+      <h4 class="dsec">${t('priceSince')}</h4>
+      ${chartSVG(T)}
+      <h4 class="dsec">${t('hist',{n:hist.length})}</h4>
+      <ul class="hist">${shown.map(e=>`<li class="${e.s||''}">
+        <div class="hmeta"><span>${e.p.date}</span>${state.source==='live' && !e.p.mentions.find(m=>m.t===T)?.k ? `<span class="pill none">○ ${t('untaggedLbl')}</span>` : pill(e.s||'none')}${e.p.reply?`<span>${t('reply')}</span>`:''}${e.p.metrics?`<span class="metrics">♥ ${(e.p.metrics.likes||0).toLocaleString()} · 👁 ${(e.p.metrics.views||0).toLocaleString()}</span>`:''}${e.p.url?`<a class="ext" href="${esc(e.p.url)}" target="_blank" rel="noopener noreferrer">${t('openPost')}</a>`:''}</div>
+        <p class="htext">${esc(postText(e.p))}</p></li>`).join('')}</ul>
+      ${!showAll && hist.length>60 ? `<button type="button" class="btn" id="dMore" style="margin-top:10px">${t('showAll',{n:hist.length})}</button>`:''}
+    </div>`;
+  dr.classList.add('on'); dr.setAttribute('aria-hidden','false'); $('#scrim').classList.add('on');
+  $('#dClose').onclick = closeDetail;
+  $('#dAsk').onclick = () => { closeDetail(); state.aiTicker = T; setView('ai'); ask(t('pFull',{t:T})); };
+  const more = $('#dMore'); if (more) more.onclick = () => { const st=$('.dbody').scrollTop; openDetail(T,true); $('.dbody').scrollTop=st; };
+  bindChart(T);
+  fillDrawerKB(T);
+  if (!showAll) $('#dClose').focus();
+}
+async function fillDrawerKB(T){
+  try { await Promise.all([kbLoad('theses'), kbLoad('track')]); }
+  catch(e){ const el=$('#dKB'); if (el && state.detail===T) el.innerHTML = `<span class="lbl">${t('kbErr',{e:esc(e.message)})}</span>`; return; }
+  const el = $('#dKB'); if (!el || state.detail!==T) return;
+  const k = kbFor(T);
+  if (!k.thesis && !k.recent.length && !k.track){ el.innerHTML = `<span class="lbl">${t('kbNone',{t:esc(T)})}</span>`; return; }
+  const src = [k.thesis ? `#### ${t('kbThesis')}\n\n${k.thesis.replace(/^#{2,3} /gm,'##### ')}` : '',
+               k.recent.length ? `#### ${t('kbRecent')}\n\n${k.recent.slice(0,6).join('\n')}` : '',
+               k.track ? `#### ${t('kbTrack')}\n\n${k.track}` : ''].filter(Boolean).join('\n\n');
+  const actions = `<div class="kb-tools" style="margin-top:12px">
+      <button type="button" class="btn" id="dKBopen">${t('openKB')}</button>
+      ${state.lang==='zh' ? `<button type="button" class="btn" id="dKBtr">${t('translate')}</button>` : ''}
+      <a class="ext" href="${GH_BLOB}${KB_DOCS.theses}" target="_blank" rel="noopener noreferrer">${t('viewOnGH')}</a></div>
+    <p class="fine">${t('kbNote')}</p>`;
+  el.innerHTML = `<div class="md" id="dKBmd">${md(src)}</div>${actions}`;
+  $('#dKBopen').onclick = () => { closeDetail(); state.kb.view='theses'; state.kb.q=T; setView('kb'); };
+  const tr = $('#dKBtr');
+  if (tr) tr.onclick = async () => {
+    if (!cfg().key){ toast(t('needKey')); openSettings(); return; }
+    if (src.length > 15000){ toast(t('tooLong',{n:src.length.toLocaleString()})); return; }
+    tr.disabled = true; tr.textContent = t('translating');
+    try { await aiTranslate(src, full=>{ const box=$('#dKBmd'); if (box) box.innerHTML = md(full); }); tr.remove(); }
+    catch(e){ toast(t('aiErr',{e:e.message})); tr.disabled=false; tr.textContent=t('translate'); }
+  };
+}
+function closeDetail(){
+  state.detail = null;
+  $('#drawer').classList.remove('on'); $('#drawer').setAttribute('aria-hidden','true'); $('#scrim').classList.remove('on');
+}
+
+/* ============================================================
+   AI Q&A (OpenAI)
+   ============================================================ */
+function systemPrompt(){
+  return [
+    'You are a senior professional stock trader and equity analyst. The user is studying a dataset of public X posts by @aleabitoreddit ("Serenity"), an AI and semiconductor supply-chain commentator, together with daily closing prices.',
+    'Evidence rules:',
+    '- Any statement about what Serenity thinks must be backed by posts in the DATA message, cited as markdown links using the post label, e.g. [P12](url). Never invent posts, quotes, dates or prices.',
+    '- Stance labels were inferred by AI and can be wrong. Read the post text; if a label looks off, say so.',
+    '- If the data does not cover something, say so plainly instead of guessing.',
+    '- Posts marked "untagged" have no stance label yet: read the text and judge the stance yourself.',
+    '- The DATA message may include a RESEARCH LIBRARY excerpt: summaries written by the yan-labs/serenity-aleabitoreddit repo author from the same public posts, including methodology, per-ticker theses and dated calls. Use it for context and the thesis arc, cite the post links it contains, call it "the research library", and prefer the raw posts when they conflict. Its figures are Serenity\'s own and unverified.',
+    '- Keep Serenity\'s views and your own analysis clearly separate. Your own analysis goes only under the trader\'s-view heading.',
+    'For a question about one stock, use these sections in order:',
+    '## 🎯 Latest opinion: the most recent explicit stance, with its link.',
+    '## 🧠 Thesis narrative: how the argument evolved from first mention to now.',
+    '## 📌 3 key opinions: the three posts that defined the thesis arc; for each give the date, link, a one-sentence summary and why it mattered.',
+    '## ⚠️ Risks mentioned: concerns raised in the posts, each linked. If none, say none were flagged.',
+    '## 📈 Trader\'s view: your own professional read: trend and setup from the price data, how crowded the call looks given mention intensity and the run since first mention, catalysts to watch, what would invalidate the thesis, and general risk-management considerations (sizing, staged entries, stops). Do not give personalised instructions.',
+    'For comparisons or market-wide questions, answer directly and concisely under the same evidence rules, using tables where helpful.',
+    'This is general research, not personalised financial advice. End with one short line saying so.',
+    state.lang==='zh' ? 'Write the whole answer in Traditional Chinese (繁體中文, Hong Kong usage), including section headings. Keep tickers, numbers and links unchanged.' : 'Write the answer in English.'
+  ].join('\n');
+}
+function detectTickers(q){
+  const out = [];
+  const add = T => { if (D().by[T] && !out.includes(T)) out.push(T); };
+  const re = /\$?([A-Za-z][A-Za-z0-9.]{0,9})/g; let mm;
+  while ((mm = re.exec(q))){ const raw = mm[1]; const hasDollar = mm[0].startsWith('$'); if (hasDollar || raw===raw.toUpperCase()) add(raw.toUpperCase()); }
+  if (state.aiTicker && !out.length) add(state.aiTicker.toUpperCase());
+  return out.slice(0,4);
+}
+function buildContext(tickers, opts={}){
+  const d = D(), lines = [];
+  lines.push(`Account: @${d.account}. Data as of ${d.asOf} (US Eastern). Updated ${d.updatedAt}. Source: ${state.source==='demo'?'DEMO / SIMULATED data (tell the user the posts and prices are simulated)':'tracker feed'}.`);
+  lines.push('', 'OVERVIEW: top names by 28-day mentions (ticker | industry | 28d mentions bull/bear/neu | 28d stance | 90d mentions | gain since first mention | last close)');
+  for (const r of rowsFor(28).slice(0,25)){
+    const s = d.stocks[r.T];
+    lines.push(`${r.T} | ${s.ind||'-'} | ${r.m} (${r.b}/${r.r}/${r.n}) | ${r.stance} | ${r.m90} | ${fmtPct(r.gain)} | ${s.ccy} ${fmtPx(pxInfo(r.T)?.last)}`);
+  }
+  let label = 0;
+  const cap = tickers.length>1 ? 60 : 90;
+  for (const T of tickers){
+    const s = d.stocks[T], m = d.meta[T], px = pxInfo(T), A = d.A;
+    const arr = d.by[T];
+    lines.push('', `=== ${T}: ${s.name}${s.ind?' ('+s.ind+')':''}, currency ${s.ccy} ===`);
+    lines.push(`First mention ${ds(m.first)}, latest ${ds(m.latest)}. Mentions: today ${count(T,A,A).m}, 7d ${count(T,A-6,A).m}, 28d ${count(T,A-27,A).m}, 90d ${count(T,A-89,A).m}, all-time ${arr.length}.`);
+    const all = count(T, -1e9, 1e9);
+    lines.push(`All-time stances: bull ${all.b}, bear ${all.r}, neutral ${all.n}, no stance ${all.x}.`);
+    if (px) lines.push(`Prices: last close ${fmtPx(px.last)} on ${px.lastDate}; 1d ${fmtPct(px.d1)}; 30d ${fmtPct(px.d30)}; price at first mention ${fmtPx(px.p0)}; gain since first mention ${fmtPct(px.gain)}; high since first mention ${fmtPx(px.hi)}, low ${fmtPx(px.lo)}; drawdown from high ${fmtPct(px.dd)}.`);
+    else lines.push('Prices: not available.');
+    const pick = arr.length>cap ? arr.slice(0,10).concat(arr.slice(-(cap-10))) : arr;
+    if (arr.length>cap) lines.push(`Posts (first 10 and latest ${cap-10} of ${arr.length}):`); else lines.push('Posts:');
+    for (const e of pick){
+      label++;
+      const known = e.p.mentions.find(m=>m.t===T)?.k;
+      const st = e.s || (state.source==='live' && !known ? 'untagged' : 'no stance');
+      const mt = e.p.metrics ? ` | ${e.p.metrics.likes||0} likes, ${e.p.metrics.views||0} views` : '';
+      lines.push(`P${label} | ${e.p.date} | ${st}${e.p.reply?' | reply':''}${mt} | ${postText(e.p).replace(/\s+/g,' ').slice(0,700)} | ${e.p.url||'no link'}`);
+    }
+  }
+  for (const T of tickers){
+    const k = kbFor(T);
+    const parts = [k.thesis && k.thesis.slice(0,6000), k.recent.length && k.recent.slice(0,5).join('\n').slice(0,3000), k.track && k.track.slice(0,2500)].filter(Boolean);
+    if (parts.length) lines.push('', `=== RESEARCH LIBRARY: ${T} ===`, ...parts);
+  }
+  const mdoc = state.kb.docs.method;
+  if (mdoc && (opts.method || !tickers.length)) lines.push('', '=== RESEARCH LIBRARY: METHODOLOGY (excerpt) ===', mdoc.slice(0, opts.method ? 14000 : 6000));
+  if (!tickers.length) lines.push('', '(No single stock was named; answer from the overview, and suggest naming a ticker for full post-level detail.)');
+  return lines.join('\n');
+}
+function friendlyErr(e){ const m = String(e && e.message || e); return /failed to fetch|networkerror|load failed|network request failed/i.test(m) ? t('netErr') : m; }
+async function callOpenAI(messages, onDelta, signal, stream=true, extra={}){
+  const c = cfg();
+  const res = await fetch(c.base.replace(/\/+$/,'') + '/chat/completions', {
+    method:'POST', signal,
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},
+    body: JSON.stringify({ model:c.model, messages, stream, ...extra })
+  });
+  if (!res.ok){
+    let msg = `${res.status} ${res.statusText}`;
+    try { const j = await res.json(); msg = j.error?.message || msg; } catch(e){}
+    if (stream && /stream/i.test(msg)) return callOpenAI(messages, onDelta, signal, false, extra);
+    if (extra.response_format && /response_format|json/i.test(msg)){ const {response_format, ...rest} = extra; return callOpenAI(messages, onDelta, signal, stream, rest); }
+    throw new Error(msg);
+  }
+  if (!stream){ const j = await res.json(); const txt = j.choices?.[0]?.message?.content || ''; onDelta(txt); return txt; }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = '', full = '';
+  while (true){
+    const {done, value} = await reader.read(); if (done) break;
+    buf += dec.decode(value, {stream:true});
+    let i;
+    while ((i = buf.indexOf('\n')) >= 0){
+      const line = buf.slice(0,i).trim(); buf = buf.slice(i+1);
+      if (!line.startsWith('data:')) continue;
+      const data = line.slice(5).trim(); if (data==='[DONE]') return full;
+      try { const j = JSON.parse(data); const piece = j.choices?.[0]?.delta?.content; if (piece){ full += piece; onDelta(full); } } catch(e){}
+    }
+  }
+  return full;
+}
+function md(src){
+  const inline = s => {
+    s = esc(s);
+    const codes = [];
+    s = s.replace(/`([^`]+)`/g, (m,a)=>{ codes.push(a); return `\u0000${codes.length-1}\u0000`; });
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m,a,u)=> /^https?:\/\//.test(u) ? `<a href="${u}" target="_blank" rel="noopener noreferrer">${a}</a>` : a);
+    s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (m,p,u)=>`${p}<a href="${u}" target="_blank" rel="noopener noreferrer">${u.length>48?u.slice(0,45)+'…':u}</a>`);
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+    const tk = x => x.replace(/\$([A-Z][A-Z0-9]{0,5})(?![A-Za-z0-9])/g, (m,T)=> D() && D().by[T] ? `<button type="button" class="tkl" data-detail="${T}">$${T}</button>` : m);
+    s = tk(s.replace(/<a [^>]*>.*?<\/a>/g, m=>m.replace(/\$/g,'\u0001'))).replace(/\u0001/g,'$');
+    s = s.replace(/\u0000(\d+)\u0000/g, (m,i)=>`<code>${tk(codes[+i])}</code>`);
+    return s;
+  };
+  const lines = String(src).replace(/\r/g,'').split('\n');
+  let html = '', list = null, items = [], para = [], quote = [], i = 0;
+  const flushP = () => { if (para.length){ html += `<p>${inline(para.join(' '))}</p>`; para=[]; } };
+  const flushL = () => { if (list){ html += `<${list}>${items.map(x=>`<li>${inline(x)}</li>`).join('')}</${list}>`; list=null; items=[]; } };
+  const flushQ = () => { if (quote.length){ html += `<blockquote>${md(quote.join('\n'))}</blockquote>`; quote=[]; } };
+  const flushAll = () => { flushP(); flushL(); flushQ(); };
+  while (i < lines.length){
+    const ln = lines[i];
+    if (/^\s*```/.test(ln)){
+      flushAll(); const code = []; i++;
+      while (i < lines.length && !/^\s*```/.test(lines[i])){ code.push(lines[i]); i++; }
+      html += `<pre><code>${esc(code.join('\n'))}</code></pre>`; i++; continue;
+    }
+    if (/^\s*\|.*\|\s*$/.test(ln)){
+      flushAll();
+      const rows = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){ rows.push(lines[i]); i++; }
+      const cells = r => r.trim().replace(/^\||\|$/g,'').split('|').map(x=>x.trim());
+      const body = rows.filter(r=>!/^[\s|:\-]+$/.test(r));
+      html += '<div class="tablewrap" style="max-height:none"><table>' + body.map((r,k)=>`<tr>${cells(r).map(c=>k===0?`<th>${inline(c)}</th>`:`<td>${inline(c)}</td>`).join('')}</tr>`).join('') + '</table></div>';
+      continue;
+    }
+    let mm;
+    if ((mm = ln.match(/^\s*>\s?(.*)$/))){ flushP(); flushL(); quote.push(mm[1]); }
+    else if ((mm = ln.match(/^(#{1,6})\s+(.*)$/))){ flushAll(); const lv = Math.min(4, mm[1].length+1); html += `<h${lv}>${inline(mm[2])}</h${lv}>`; }
+    else if (/^\s*(-{3,}|\*{3,})\s*$/.test(ln)){ flushAll(); html += '<hr>'; }
+    else if ((mm = ln.match(/^\s*[-*•]\s+(.*)$/))){ flushP(); flushQ(); if (list!=='ul'){ flushL(); list='ul'; } items.push(mm[1]); }
+    else if ((mm = ln.match(/^\s*\d+[.)]\s+(.*)$/))){ flushP(); flushQ(); if (list!=='ol'){ flushL(); list='ol'; } items.push(mm[1]); }
+    else if (!ln.trim()){ flushAll(); }
+    else if (list && /^\s+\S/.test(ln)){ items[items.length-1] += ' ' + ln.trim(); }
+    else if (quote.length){ quote.push(ln); }
+    else { flushL(); para.push(ln.trim()); }
+    i++;
+  }
+  flushAll();
+  return html;
+}
+function viewAI(){
+  const c = cfg();
+  const tickers = Object.keys(D().by).sort();
+  return `<section class="ai">
+    <div class="ai-side">
+      <h2>${t('aiTitle')}</h2>
+      <p>${t('aiIntro')}</p>
+      <div class="keyst ${c.key?'ok':'no'}">${c.key ? t('keyOk',{m:esc(c.model)}) : `${t('keyNo')} <button type="button" class="linkbtn" data-open-settings>${t('openSettings')}</button>`}</div>
+      <label class="field">${t('stock')}
+        <input id="aiTicker" list="tickList" value="${esc(state.aiTicker)}" placeholder="${esc(t('anyStock'))}" autocomplete="off">
+        <datalist id="tickList">${tickers.map(T=>`<option value="${esc(T)}">${esc(D().stocks[T].name)}</option>`).join('')}</datalist>
+      </label>
+      <div class="quick">
+        <button type="button" class="btn" data-q="pFull">${t('qFull')}</button>
+        <button type="button" class="btn" data-q="pLatest">${t('qLatest')}</button>
+        <button type="button" class="btn" data-q="pRisk">${t('qRisk')}</button>
+        <button type="button" class="btn" data-q="pTrade">${t('qTrade')}</button>
+        <button type="button" class="btn" data-q="pFrame">${t('qFrame')}</button>
+        <button type="button" class="btn" data-q="pBull">${t('qBull')}</button>
+      </div>
+    </div>
+    <div class="ai-main">
+      <div class="chatlog" id="chatlog"></div>
+      <div class="composer">
+        <textarea id="aiInput" placeholder="${esc(t('placeholder'))}" aria-label="${esc(t('placeholder'))}"></textarea>
+        <div class="bar">
+          <button type="button" class="btn ghost" id="aiClear">${t('clear')}</button>
+          <span style="display:flex;gap:8px"><button type="button" class="btn" id="aiStop" ${state.abort?'':'hidden'}>${t('stop')}</button><button type="button" class="btn primary" id="aiSend" ${state.abort?'disabled':''}>${t('send')}</button></span>
+        </div>
+      </div>
+      <p class="fine">${t('aiFine')}</p>
+    </div>
+  </section>`;
+}
+function renderChat(){
+  const log = $('#chatlog'); if (!log) return;
+  if (!state.chat.length){
+    log.innerHTML = `<div class="welcome">${t('welcome')}<ul><li>${t('w1')}</li><li>${t('w2')}</li><li>${t('w3')}</li><li>${t('w4')}</li></ul></div>`;
+    return;
+  }
+  log.innerHTML = state.chat.map(m=> m.role==='user'
+    ? `<div class="msg user"><div class="who">${t('you')}</div>${esc(m.content)}</div>`
+    : `<div class="msg assistant ${m.error?'err':''}"><div class="who">${t('analyst')}</div><div class="md">${m.error ? esc(m.error) : md(m.content)}${m.pending?'<span class="cursor"></span>':''}</div></div>`
+  ).join('');
+}
+function bindAI(){
+  renderChat();
+  const inp = $('#aiInput');
+  $('#aiTicker').addEventListener('change', e=>{ state.aiTicker = e.target.value.trim().toUpperCase(); e.target.value = state.aiTicker; });
+  $$('[data-q]').forEach(b=> b.onclick = () => {
+    state.aiTicker = $('#aiTicker').value.trim().toUpperCase();
+    const k = b.dataset.q;
+    if (k!=='pBull' && !D().by[state.aiTicker]){ toast(t('pickFirst')); $('#aiTicker').focus(); return; }
+    ask(t(k,{t:state.aiTicker}), {method: k==='pFrame'});
+  });
+  $('#aiSend').onclick = () => { const q = inp.value.trim(); if (q){ inp.value=''; ask(q); } };
+  inp.addEventListener('keydown', e=>{ if (e.key==='Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); $('#aiSend').click(); } });
+  $('#aiStop').onclick = () => state.abort && state.abort.abort();
+  $('#aiClear').onclick = () => { if (state.abort) state.abort.abort(); state.chat = []; renderChat(); };
+}
+async function ask(q, opts={}){
+  if (state.abort) return;
+  try { await Promise.all([kbLoad('theses'), kbLoad('track'), kbLoad('method')]); } catch(e){}
+  const c = cfg();
+  if (!c.key){ toast(t('keyNo')); openSettings(); return; }
+  if ($('#aiTicker')) state.aiTicker = $('#aiTicker').value.trim().toUpperCase() || state.aiTicker;
+  const tickers = detectTickers(q);
+  const history = state.chat.filter(m=>!m.error && !m.pending).slice(-8).map(m=>({role:m.role, content:m.content}));
+  state.chat.push({role:'user', content:q});
+  const msg = {role:'assistant', content:'', pending:true};
+  state.chat.push(msg);
+  state.abort = new AbortController();
+  refreshAIButtons(); renderChat(); scrollChat();
+  const messages = [
+    {role:'system', content: systemPrompt()},
+    {role:'system', content: 'DATA\n' + buildContext(tickers, {method: opts.method || /method|framework|checklist|approach|方法|框架|清單/i.test(q)})},
+    ...history,
+    {role:'user', content:q}
+  ];
+  let raf = 0;
+  try {
+    await callOpenAI(messages, full => {
+      msg.content = full;
+      if (!raf) raf = requestAnimationFrame(()=>{ raf=0; renderChat(); });
+    }, state.abort.signal);
+  } catch(err){
+    if (err.name==='AbortError') msg.content += '\n\n' + t('stopped');
+    else msg.error = t('aiErr',{e:friendlyErr(err)});
+  }
+  msg.pending = false; state.abort = null;
+  cancelAnimationFrame(raf); renderChat(); refreshAIButtons();
+}
+function refreshAIButtons(){ const s=$('#aiSend'), p=$('#aiStop'); if (s) s.disabled = !!state.abort; if (p) p.hidden = !state.abort; }
+function scrollChat(){ const log=$('#chatlog'); if (log) log.lastElementChild?.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+
+/* ============================================================
+   Settings
+   ============================================================ */
+const SCHEMA = `{
+  "account": "aleabitoreddit",
+  "as_of": "2026-10-30",                 // US Eastern date of the snapshot
+  "updated_at": "2026-10-30T19:00:00Z",
+  "stocks": {
+    "SIVE": {
+      "name": "Sivers Semiconductors",
+      "industry": "AI photonics / CW lasers",
+      "industry_zh": "AI 光子／CW 雷射",   // optional
+      "currency": "SEK",
+      "prices": [["2025-12-23", 4.18], ["2025-12-24", 4.31]]
+    }
+  },
+  "posts": [
+    {
+      "id": "1866…",
+      "url": "https://x.com/aleabitoreddit/status/1866…",
+      "created_at": "2026-10-30T14:05:00Z",
+      "text": "Post text or summary",     // or {"en": "...", "zh": "..."}
+      "mentions": [{"ticker": "SIVE", "stance": "bull"}]   // bull | bear | neu | null
+    }
+  ]
+}`;
+function openSettings(){
+  const c = cfg();
+  $('#settingsBody').innerHTML = `
+    <h2>${t('setTitle')}</h2>
+    <h3>${t('secAI')}</h3>
+    <label class="field">${t('apiKey')}
+      <span class="inline"><input type="password" id="sKey" value="${esc(c.key)}" placeholder="sk-…" autocomplete="off" spellcheck="false"><button type="button" class="btn" id="sShow">${t('show')}</button></span>
+      <small>${t('keyHelp')}</small>
+    </label>
+    <label class="field">${t('model')}
+      <input id="sModel" list="modelList" value="${esc(c.model)}" spellcheck="false">
+      <datalist id="modelList"><option value="gpt-5"><option value="gpt-5-mini"><option value="gpt-4.1"><option value="gpt-4.1-mini"><option value="gpt-4o"></datalist>
+      <small>${t('modelHelp')}</small>
+    </label>
+    <label class="field">${t('base')}
+      <input id="sBase" value="${esc(c.base)}" spellcheck="false">
+      <small>${t('baseHelp')}</small>
+    </label>
+    <div class="inline" style="gap:8px;margin-bottom:8px"><button type="button" class="btn" id="sTest">${t('test')}</button><button type="button" class="btn ghost" id="sRemove">${t('removeKey')}</button></div>
+    <div class="testres" id="sTestRes"></div>
+    <h3>${t('secSources')}</h3>
+    <label class="field" style="flex-direction:row;align-items:flex-start;gap:8px;font-weight:600"><input type="checkbox" id="sArchive" style="width:auto;margin-top:3px" ${c.archive?'checked':''}><span>${t('useArchive')}<br><small>${t('archiveHelp')}</small></span></label>
+    <label class="field">${t('feedUrl')}
+      <input id="sFeed" value="${esc(c.feed)}" placeholder="https://…/serenity.json" spellcheck="false">
+      <small>${t('feedHelp')}</small>
+    </label>
+    <label class="field" style="flex-direction:row;align-items:center;gap:8px;font-weight:500"><input type="checkbox" id="sAuto" style="width:auto" ${c.auto?'checked':''}> ${t('auto')}</label>
+    <div class="inline" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn" id="sImport">${t('importFile')}</button><button type="button" class="btn ghost" id="sDemo">${state.demo ? t('useReal') : t('useDemo')}</button></div>
+    <h3>${t('secTag')}</h3>
+    <label class="field" style="flex-direction:row;align-items:center;gap:8px;font-weight:500"><input type="checkbox" id="sAutoTag" style="width:auto" ${c.autoTag?'checked':''}> ${t('autoTag')}</label>
+    <p class="fine" style="margin-top:-6px">${t('tagHelp')}</p>
+    <div class="inline" style="gap:8px;flex-wrap:wrap">
+      <button type="button" class="btn" id="sExportTags">${t('exportTags')} (${Object.keys(STC).length.toLocaleString()})</button>
+      <button type="button" class="btn" id="sImportTags">${t('importTags')}</button>
+      <button type="button" class="btn ghost" id="sClearTags">${t('clearTags')}</button>
+    </div>
+    <p class="fine">${t('exportHelp')}</p>
+    <details style="margin-top:14px"><summary style="cursor:pointer;font-weight:600;font-size:13px">${t('schema')}</summary><pre class="schema">${esc(SCHEMA)}</pre></details>`;
+  $('#sShow').onclick = e => { const k=$('#sKey'); const on = k.type==='password'; k.type = on?'text':'password'; e.target.textContent = on?t('hide'):t('show'); };
+  $('#sRemove').onclick = () => { $('#sKey').value=''; store.del('sst.key'); $('#sTestRes').textContent=''; renderAll(); };
+  $('#sTest').onclick = async () => {
+    const res = $('#sTestRes'); res.style.color='var(--ink-2)'; res.textContent = t('testing');
+    const prev = {k:store.get('sst.key'), m:store.get('sst.model'), b:store.get('sst.base')};
+    store.set('sst.key',$('#sKey').value.trim()); store.set('sst.model',$('#sModel').value.trim()||'gpt-5-mini'); store.set('sst.base',$('#sBase').value.trim()||'https://api.openai.com/v1');
+    try { await callOpenAI([{role:'user',content:'Reply with the single word OK.'}], ()=>{}, undefined, false); res.style.color='var(--bull)'; res.textContent = t('testOk'); }
+    catch(e){ res.style.color='var(--bear)'; res.textContent = t('aiErr',{e:friendlyErr(e)}); }
+    const r = (k,v)=> v==null ? store.del(k) : store.set(k,v);
+    r('sst.key',prev.k); r('sst.model',prev.m); r('sst.base',prev.b);
+  };
+  $('#sImport').onclick = () => $('#fileInput').click();
+  $('#sDemo').onclick = () => { state.demo = !state.demo; store.set('sst.demo', state.demo?'1':'0'); $('#settingsDlg').close(); loadData(true); };
+  $('#sExportTags').onclick = () => {
+    const blob = new Blob([JSON.stringify({version:1, exported_at:new Date().toISOString(), stances:STC})], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'stances_import.json';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+    toast(t('exported',{n:Object.keys(STC).length.toLocaleString()}));
+  };
+  $('#sImportTags').onclick = () => {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'application/json,.json';
+    inp.onchange = () => { const f = inp.files[0]; if (!f) return; const rd = new FileReader();
+      rd.onload = () => { try { const j = JSON.parse(rd.result); const src = j.stances || j; let n = 0;
+          for (const [id,o] of Object.entries(src)){ if (o && typeof o==='object'){ STC[id] = Object.assign(STC[id]||{}, o); n++; } }
+          saveSTC(); toast(t('importedTags',{n:n.toLocaleString()})); if (state.source==='live'){ state.D = buildLive(); renderAll(); } $('#settingsDlg').close();
+        } catch(e){ toast(t('fileErr',{e:e.message})); } };
+      rd.readAsText(f); };
+    inp.click();
+  };
+  $('#sClearTags').onclick = () => { STC = {}; saveSTC(); toast(t('clearedTags')); $('#sExportTags').textContent = t('exportTags')+' (0)'; if (state.source==='live'){ state.D = buildLive(); renderAll(); } };
+  $('#settingsDlg').showModal();
+}
+function saveSettings(){
+  const key = $('#sKey').value.trim(), model = $('#sModel').value.trim() || 'gpt-5-mini', base = $('#sBase').value.trim() || 'https://api.openai.com/v1';
+  key ? store.set('sst.key', key) : store.del('sst.key');
+  store.set('sst.model', model); store.set('sst.base', base);
+  const before = cfg();
+  const feed = $('#sFeed').value.trim();
+  feed ? store.set('sst.feed', feed) : store.del('sst.feed');
+  store.set('sst.auto', $('#sAuto').checked ? '1' : '0');
+  store.set('sst.archive', $('#sArchive').checked ? '1' : '0');
+  store.set('sst.autotag', $('#sAutoTag').checked ? '1' : '0');
+  $('#settingsDlg').close();
+  toast(t('saved'));
+  const after = cfg();
+  if (!state.demo && (after.feed!==before.feed || after.archive!==before.archive)) loadData(true);
+  else { schedule(); renderAll(); }
+}
+/* ============================================================
+   Data loading + hourly refresh (on the hour, UTC)
+   ============================================================ */
+function loadDemo(){ state.source='demo'; state.D = normalize(genDemo(), 'demo'); renderAll(); }
+async function loadData(full, quiet){
+  if (state.demo){ loadDemo(); schedule(); return; }
+  const c = cfg();
+  state.loading = true; renderBanner();
+  const errs = [];
+  if (c.archive){ try { await loadArchive(full); } catch(e){ errs.push(e); } } else state.archiveRaw = null;
+  const autoFeed = !c.feed && /^https?:$/.test(location.protocol) ? new URL('feed/feed.json', location.href).href : '';
+  if (c.feed){ try { state.feedRaw = await fetchJSON(c.feed); } catch(e){ toast(t('loadErr',{e:e.message})); } }
+  else if (autoFeed){ try { state.feedRaw = await fetchJSON(autoFeed); } catch(e){ state.feedRaw = null; } }   // hosted next to the feed: use it quietly
+  else state.feedRaw = null;
+  state.loading = false;
+  try { await kbLoad('theses'); } catch(e){}
+  if (!state.archiveRaw && !state.feedRaw && !state.fileRaw){
+    toast(t('archiveErr',{e: errs[0]?.message || 'no source enabled'}));
+    loadDemo(); schedule(); return;
+  }
+  state.source = 'live';
+  state.D = buildLive();
+  renderAll();
+  if (!quiet) toast(t('refreshed'));
+  schedule();
+  if (c.autoTag && c.key){ const n = untaggedPosts(90).length; if (n>0 && n<=150) tagStances(90); }
+}
+async function loadFeed(url, quiet){ return loadData(false, quiet); }
+async function refreshNow(){
+  const b = $('#refreshBtn'); if (b){ b.disabled = true; b.textContent = t('refreshing'); }
+  if (state.demo){ loadDemo(); toast(t('refreshed')); schedule(); }
+  else await loadData(false);
+}
+let timer = 0;
+function schedule(){
+  clearTimeout(timer);
+  const c = cfg();
+  if (!c.auto){ state.nextAt = null; renderStatus(); return; }
+  const now = Date.now();
+  let next = Math.ceil(now/3600000)*3600000 + 120000;
+  if (next - now > 3600000 + 120000) next -= 3600000;
+  if (next <= now) next += 3600000;
+  state.nextAt = next;
+  timer = setTimeout(()=>{ if (state.demo){ loadDemo(); schedule(); } else loadData(false, true); }, next-now);
+  renderStatus();
+}
+document.addEventListener('visibilitychange', ()=>{ if (!document.hidden && state.nextAt && Date.now() > state.nextAt + 5000) refreshNow(); });
+
+/* ============================================================
+   Rendering shell
+   ============================================================ */
+function renderStatus(){
+  const d = D(); if (!d) return;
+  const up = new Date(d.updatedAt);
+  const loc = new Intl.DateTimeFormat(state.lang==='zh'?'zh-HK':'en-GB',{dateStyle:'medium',timeStyle:'short'}).format(up);
+  const etFull = new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(up).replace(',','');
+  const nx = state.nextAt ? t('next',{t:new Date(state.nextAt).toISOString().slice(11,16)}) : t('nextOff');
+  let badges = '';
+  if (state.source==='demo') badges = `<span class="src demo">${t('srcdemo')}</span>`;
+  else {
+    if (state.archiveRaw) badges += `<span class="src url">${t('srcarchive')}</span>`;
+    if (state.feedRaw) badges += `<span class="src url">${t('srcfeed')}</span>`;
+    if (state.fileRaw) badges += `<span class="src file">${t('srcfile')}</span>`;
+  }
+  $('#status').innerHTML = `${badges}
+    <span>🕘 ${t('updated',{d:etFull})}</span><span>${t('local',{d:loc})}</span>
+    <span class="spacer"></span><span>${nx}</span>
+    <button type="button" class="linkbtn" id="refreshBtn">${t('refresh')}</button>`;
+  $('#refreshBtn').onclick = refreshNow;
+  renderBanner();
+}
+function renderBanner(){
+  const slot = $('#bannerSlot'); if (!slot) return;
+  if (state.loading){ slot.innerHTML = `<div class="banner"><b>●</b><span>${t('loadingData')}</span></div>`; return; }
+  if (state.source==='demo'){ slot.innerHTML = `<div class="banner"><b>●</b><span style="flex:1;min-width:220px">${t('demoNotice')}</span><button type="button" class="linkbtn" data-open-settings>${t('openSettings')}</button></div>`; return; }
+  if (state.tag){
+    const {done,total} = state.tag;
+    slot.innerHTML = `<div class="tagbar"><p>${t('tagging',{d:done.toLocaleString(),n:total.toLocaleString()})}</p><button type="button" class="btn" id="tagStop">${t('stop')}</button><div class="prog"><i style="width:${total?done/total*100:0}%"></i></div></div>`;
+    $('#tagStop').onclick = () => state.tag && state.tag.abort.abort();
+    return;
+  }
+  const n90 = untaggedPosts(90).length, nAll = untaggedPosts(null).length;
+  const central = !!(state.feedRaw && state.feedRaw.stances && Object.keys(state.feedRaw.stances).length);
+  if (!nAll || central){ slot.innerHTML = ''; return; }   // GitHub Actions tags centrally; nothing to do on this device
+  const hasKey = !!cfg().key;
+  slot.innerHTML = `<div class="tagbar"><p>${n90 ? t('untagged',{n:n90.toLocaleString()}) : ''} ${nAll>n90 ? t('untaggedOld',{n:(nAll-n90).toLocaleString()}) : ''}</p>
+    ${hasKey ? `${n90?`<button type="button" class="btn primary" id="tag90">${t('tag90')}</button>`:''}<button type="button" class="btn" id="tagAllBtn">${t('tagAll')} (${nAll.toLocaleString()})</button>`
+             : `<button type="button" class="btn primary" data-open-settings>${t('openSettings')}</button>`}</div>`;
+  const b90 = $('#tag90'); if (b90) b90.onclick = () => tagStances(90);
+  const ba = $('#tagAllBtn'); if (ba) ba.onclick = () => tagStances(null);
+}
+function renderView(){
+  const v = $('#view');
+  $$('#tabs [data-view]').forEach(b=>b.setAttribute('aria-selected', String(b.dataset.view===state.view)));
+  if (state.view==='daily') v.innerHTML = viewPulse(1);
+  else if (state.view==='weekly') v.innerHTML = viewPulse(7);
+  else if (state.view==='monthly') v.innerHTML = viewMonthly();
+  else if (state.view==='quarterly'){ v.innerHTML = viewQuarterly(); fillTable();
+    $('#qSearch').addEventListener('input', e=>{ state.q = e.target.value; fillTable(); });
+    $('#only3').addEventListener('change', e=>{ state.only3 = e.target.checked; fillTable(); });
+  }
+  else if (state.view==='kb'){ v.innerHTML = viewKB(); bindKB(); }
+  else { v.innerHTML = viewAI(); bindAI(); }
+}
+function viewKB(){
+  const docs = ['theses','method','track','articles','skill'];
+  return `<div class="vhead"><h2>${t('kbTitle')}</h2></div>
+    <p class="vmeta" style="max-width:80ch">${t('kbIntro')}</p>
+    <section class="kb">
+      <nav class="kb-nav" aria-label="${esc(t('kbTitle'))}">
+        ${docs.map(k=>`<button type="button" data-kb="${k}" aria-current="${state.kb.view===k}">${t({theses:'docTheses',method:'docMethod',track:'docTrack',articles:'docArticles',skill:'docSkill'}[k])}</button>`).join('')}
+        <button type="button" data-kb="analysis" aria-current="${state.kb.view.startsWith('analysis:')}">${t('docAnalyses')}</button>
+        <select id="kbAn" aria-label="${esc(t('docAnalyses'))}" ${state.kb.view.startsWith('analysis:')?'':'hidden'}></select>
+      </nav>
+      <div class="kb-main">
+        <div class="kb-tools">
+          <input type="search" id="kbQ" placeholder="${esc(t('kbSearch'))}" value="${esc(state.kb.q)}" aria-label="${esc(t('kbSearch'))}">
+          ${state.lang==='zh' ? `<button type="button" class="btn" id="kbTr">${t('translate')}</button>` : ''}
+          <a class="ext" id="kbGH" target="_blank" rel="noopener noreferrer">${t('viewOnGH')}</a>
+        </div>
+        <div class="fine" id="kbCount"></div>
+        <div class="kb-doc"><div class="md" id="kbDoc"><span class="lbl">${t('kbLoading')}</span></div></div>
+        <p class="fine">${t('kbNote')}</p>
+      </div>
+    </section>`;
+}
+let kbTimer = 0, kbShown = '';
+async function renderKBDoc(){
+  const key = state.kb.view, box = $('#kbDoc'); if (!box) return;
+  $('#kbGH').href = GH_BLOB + kbPath(key);
+  let txt;
+  try { txt = await kbLoad(key); } catch(e){ box.innerHTML = `<span class="lbl">${t('kbErr',{e:esc(e.message)})}</span>`; return; }
+  if (state.kb.view!==key || !$('#kbDoc')) return;
+  const q = state.kb.q.trim().toLowerCase();
+  const secs = kbSections(txt);
+  let show = secs, note = '';
+  if (q){
+    show = secs.filter(s=>s.text.toLowerCase().includes(q));
+    note = t('kbMatches',{n:show.length, m:secs.length});
+  }
+  kbShown = show.map(s=>s.text).join('\n\n');
+  const tk = state.kb.tr[hashStr(kbShown)];
+  $('#kbCount').textContent = note;
+  box.innerHTML = md(tk || kbShown) || '—';
+  const btn = $('#kbTr');
+  if (btn){ btn.disabled = false; btn.textContent = tk ? t('showOriginal') : t('translate'); btn.dataset.mode = tk ? 'orig' : 'tr'; }
+}
+async function bindKB(){
+  $$('[data-kb]').forEach(b=> b.onclick = async () => {
+    if (b.dataset.kb==='analysis'){ const list = await kbAnalyses(); state.kb.view = 'analysis:' + (state.kb.analysis || list[list.length-1]); }
+    else state.kb.view = b.dataset.kb;
+    renderView();
+  });
+  const sel = $('#kbAn');
+  if (state.kb.view.startsWith('analysis:')){
+    const list = await kbAnalyses();
+    sel.innerHTML = list.map(n=>`<option value="${esc(n)}" ${state.kb.view==='analysis:'+n?'selected':''}>${esc(n.replace('.md','').replace(/_/g,' '))}</option>`).join('');
+    sel.onchange = () => { state.kb.analysis = sel.value; state.kb.view = 'analysis:'+sel.value; renderKBDoc(); };
+  }
+  $('#kbQ').addEventListener('input', e=>{ state.kb.q = e.target.value; clearTimeout(kbTimer); kbTimer = setTimeout(renderKBDoc, 220); });
+  const tr = $('#kbTr');
+  if (tr) tr.onclick = async () => {
+    const k = hashStr(kbShown);
+    if (tr.dataset.mode==='orig'){ delete state.kb.tr[k]; renderKBDoc(); return; }
+    if (!cfg().key){ toast(t('needKey')); openSettings(); return; }
+    if (kbShown.length > 15000){ toast(t('tooLong',{n:kbShown.length.toLocaleString()})); return; }
+    tr.disabled = true; tr.textContent = t('translating');
+    const src = kbShown;
+    try { const out = await aiTranslate(src, full=>{ if (kbShown===src && $('#kbDoc')) $('#kbDoc').innerHTML = md(full); }); state.kb.tr[hashStr(src)] = out; }
+    catch(e){ toast(t('aiErr',{e:e.message})); }
+    renderKBDoc();
+  };
+  renderKBDoc();
+}
+function applyStatic(){
+  document.documentElement.lang = state.lang==='zh' ? 'zh-Hant' : 'en';
+  document.title = t('appTitle');
+  $$('[data-i18n]').forEach(el=> el.textContent = t(el.dataset.i18n));
+  $$('[data-lang]').forEach(b=> b.setAttribute('aria-pressed', String(b.dataset.lang===state.lang)));
+  $('#themeBtn').textContent = t('theme'+state.theme);
+  if (state.theme==='auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', state.theme);
+}
+function renderAll(){
+  if (!D()) return;
+  applyStatic(); renderStatus(); renderView();
+  if (state.detail) openDetail(state.detail);
+}
+function setView(v){ state.view = v; renderView(); window.scrollTo({top:0}); }
+let toastT = 0;
+function toast(msg){ const el=$('#toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(()=>el.classList.remove('on'), 3400); }
+
+/* ============================================================
+   Events
+   ============================================================ */
+document.addEventListener('click', e=>{
+  const det = e.target.closest('[data-detail]');
+  if (det && !e.target.closest('a')){ openDetail(det.dataset.detail); return; }
+  const tab = e.target.closest('#tabs [data-view]'); if (tab){ setView(tab.dataset.view); return; }
+  const lang = e.target.closest('[data-lang]'); if (lang){ state.lang = lang.dataset.lang; store.set('sst.lang', state.lang); renderAll(); return; }
+  if (e.target.closest('[data-open-settings]')){ openSettings(); return; }
+  const srt = e.target.closest('[data-sort]');
+  if (srt){ const k = srt.dataset.sort; state.sort = state.sort.key===k ? {key:k, dir:-state.sort.dir} : {key:k, dir: (k==='T'||k==='ind')?1:-1};
+    $$('th[aria-sort]').forEach(th=>{ const kk = th.querySelector('[data-sort]').dataset.sort; th.setAttribute('aria-sort', kk===state.sort.key ? (state.sort.dir<0?'descending':'ascending') : 'none'); });
+    fillTable(); }
+});
+document.addEventListener('keydown', e=>{
+  if (e.key==='Escape' && state.detail) closeDetail();
+  if ((e.key==='Enter' || e.key===' ') && e.target.matches('li[data-detail], tr[data-detail]')){ e.preventDefault(); openDetail(e.target.dataset.detail); }
+});
+$('#scrim').onclick = closeDetail;
+$('#settingsBtn').onclick = openSettings;
+$('#setCancel').onclick = () => $('#settingsDlg').close();
+$('#setSave').onclick = saveSettings;
+$('#themeBtn').onclick = () => { state.theme = {auto:'light', light:'dark', dark:'auto'}[state.theme]; store.set('sst.theme', state.theme); applyStatic(); };
+$('#fileInput').addEventListener('change', e=>{
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const raw = JSON.parse(rd.result); normalize(raw, 'file');
+      state.fileRaw = raw; state.demo = false; store.set('sst.demo','0'); state.source = 'live';
+      if ($('#settingsDlg').open) $('#settingsDlg').close();
+      state.D = buildLive(); schedule(); renderAll(); toast(t('fileOk',{n:raw.posts.length}));
+    }
+    catch(err){ toast(t('fileErr',{e:err.message})); }
+  };
+  rd.readAsText(f); e.target.value = '';
+});
+setInterval(renderStatus, 60000);
+
+/* ============================================================
+   Start
+   ============================================================ */
+(function init(){
+  loadDemo();            // instant paint while real data loads
+  if (!state.demo) loadData(true, true);
+  else schedule();
+})();
+</script>
+</body>
+</html>
